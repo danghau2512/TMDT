@@ -1,0 +1,12 @@
+:root { font-family: system-ui, sans-serif; color: #1c2935; background: #f3f6f8; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 860px; margin: 6vh auto; padding: 30px; }
+.eyebrow { color: #3f647b; font-weight: 600; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.2; }
+p { line-height: 1.7; }
+section { margin-top: 24px; padding: 20px 24px; border: 1px solid #dce4e9; border-radius: 12px; background: white; }
+h2 { font-size: 1.2rem; margin-top: 0; }
+.ok { color: #166747; }
+a { color: #155c95; }
+@media (max-width: 600px) { main { margin: 0 auto; padding: 20px; } }

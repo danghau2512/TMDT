@@ -1,0 +1,150 @@
+Tôi đang thực hiện đồ án môn Thương mại điện tử, nhóm 6, với đề tài “Thiết kế mô hình nền tảng kết nối người mua – người bán”. Tôi chọn hướng xây dựng website thực nghiệm.
+
+Hãy đọc toàn bộ yêu cầu dưới đây và khảo sát repository trước khi đề xuất giải pháp. Đây là đặc tả tổng thể của dự án. Trong lượt đầu, hãy tập trung vào phân tích, thiết kế database và kế hoạch triển khai; chưa lập trình toàn bộ chức năng.
+
+1. Bối cảnh và mục tiêu
+
+Website hoạt động theo mô hình C2C, cho phép nhiều cá nhân đăng bán sản phẩm và mua sản phẩm của nhau.
+
+Một tài khoản người dùng thông thường có thể vừa mua vừa bán. Quản trị viên có quyền quản lý toàn nền tảng.
+
+Tên thương hiệu và ngành hàng cụ thể chưa chốt. Trước mắt, hãy thiết kế các nghiệp vụ mua bán hàng hóa thông thường và nêu những điểm cần điều chỉnh khi chọn ngành hàng.
+
+Website cần đáp ứng các chức năng TMĐT cơ bản và thể hiện khả năng theo dõi, lưu giữ thông tin giao dịch, đánh giá theo đơn hàng và tiếp nhận khiếu nại.
+
+Không triển khai AI, MLOps hoặc các tính năng nâng cao liên quan.
+
+2. Công nghệ và cấu trúc
+
+- Backend: Java Servlet.
+- Database: MySQL.
+- Truy cập database: JDBI.
+- Phân chia thành các package Controller, Service, DAO, Model và các thành phần hỗ trợ cần thiết.
+- Controller là Servlet, tiếp nhận yêu cầu HTTP, gọi Service và chuyển dữ liệu đến giao diện.
+- Service xử lý nghiệp vụ, kiểm tra điều kiện và phối hợp thao tác dữ liệu.
+- DAO thực hiện truy vấn database.
+- Model biểu diễn dữ liệu của hệ thống.
+- Giao diện: ưu tiên sử dụng giao diện hiện có. Nếu dự án mới, đề xuất JSP/JSTL kết hợp HTML, CSS, JavaScript và Bootstrap cơ bản.
+- Code cần dễ đọc, đặt tên nhất quán và có giải thích ngắn gọn cho nghiệp vụ quan trọng.
+
+Hãy kiểm tra cấu hình hiện có để xác định phiên bản JDK, Tomcat, MySQL và Servlet API. Nếu chưa có cấu hình, đề xuất bộ phiên bản tương thích và ghi rõ giả định. Không trộn javax.servlet với jakarta.servlet.
+
+3. Chức năng người dùng và người mua
+
+- Tài khoản: đăng ký, đăng nhập, đăng xuất và cập nhật hồ sơ.
+- Trang chủ: hiển thị danh mục, sản phẩm mới và sản phẩm nổi bật.
+- Danh mục: xem sản phẩm theo danh mục.
+- Tìm kiếm và lọc cơ bản: theo từ khóa, danh mục, khoảng giá và tình trạng sản phẩm.
+- Chi tiết sản phẩm: hình ảnh, tên, mô tả, giá, tình trạng, số lượng và thông tin liên hệ người bán.
+- Giỏ hàng: thêm, xóa, cập nhật số lượng và tính tổng tiền.
+- Đặt hàng: nhập thông tin người nhận, số điện thoại, địa chỉ và tạo đơn.
+- Thanh toán mô phỏng: lựa chọn COD hoặc chuyển khoản mô phỏng, ghi nhận phương thức và trạng thái thanh toán. Không kết nối cổng thanh toán thật.
+- Theo dõi mua hàng: xem danh sách đơn, chi tiết đơn và trạng thái xử lý.
+- Hủy đơn theo điều kiện nghiệp vụ đã thống nhất.
+- Xác nhận đã nhận hàng để hoàn tất giao dịch.
+- Đánh giá và gửi khiếu nại theo các quy tắc bên dưới.
+
+4. Chức năng người bán và quản trị viên
+
+Người bán:
+
+- Đăng sản phẩm với tên, danh mục, giá, mô tả, tình trạng, số lượng và hình ảnh.
+- Xem, sửa, ẩn sản phẩm của mình và cập nhật tình trạng còn hàng/đã bán.
+- Xem đơn bán, thông tin giao hàng và cập nhật trạng thái xử lý được phép.
+
+Quản trị viên:
+
+- Quản lý sản phẩm toàn nền tảng, bao gồm thêm, sửa, ẩn và kiểm duyệt tin đăng.
+- Quản lý đơn hàng toàn nền tảng, xem chi tiết và xử lý theo quy tắc nghiệp vụ.
+- Tiếp nhận, xem bằng chứng và phản hồi khiếu nại.
+
+Quyền truy cập phải được kiểm tra ở phía server. Người bán chỉ được quản lý sản phẩm và đơn bán của mình; người mua chỉ được truy cập đơn mua của mình.
+
+5. Các chức năng tạo điểm nhấn
+
+a. Lịch sử trạng thái đơn hàng
+
+- Mỗi đơn có mã riêng.
+- Lưu trạng thái, thời điểm thay đổi và người thực hiện.
+- Đề xuất các trạng thái như chờ xác nhận, đã xác nhận, đang giao, đã giao, hoàn thành và đã hủy.
+- Xác định ai được chuyển trạng thái và điều kiện chuyển.
+- Phân biệt trạng thái đơn hàng với trạng thái thanh toán.
+
+b. Lưu thông tin sản phẩm tại thời điểm đặt hàng
+
+- Trong chi tiết đơn, lưu lại tên, giá, mô tả, tình trạng và hình ảnh sản phẩm tại lúc đặt.
+- Việc người bán sửa tin đăng sau đó không làm thay đổi thông tin của đơn cũ.
+- Thông tin này được dùng để đối chiếu khi có khiếu nại.
+
+c. Đánh giá theo đơn hàng
+
+- Chỉ người mua của đơn đã hoàn thành được đánh giá sản phẩm/người bán liên quan.
+- Mỗi sản phẩm trong đơn được đánh giá một lần.
+- Đánh giá gồm số sao và nhận xét, gắn với đơn được hệ thống ghi nhận.
+- Hiển thị nhãn “Đã mua qua hệ thống”.
+- Phản ánh về giao dịch chưa hoàn thành được tiếp nhận qua chức năng khiếu nại.
+
+d. Khiếu nại gắn với đơn hàng
+
+- Người mua chọn đơn, nhập lý do, nội dung và tải ảnh minh chứng.
+- Cho phép phản ánh cả đơn chưa hoàn thành khi có vấn đề.
+- Admin xem đơn, lịch sử trạng thái, thông tin sản phẩm đã lưu và bằng chứng.
+- Lưu phản hồi, kết quả xử lý và trạng thái như đã tiếp nhận, đang xử lý, đã xử lý.
+- Người mua theo dõi được tiến độ xử lý trong tài khoản.
+- Không triển khai hoàn tiền thật.
+
+e. Quản lý số lượng
+
+- Kiểm tra số lượng trước khi tạo đơn.
+- Đề xuất thời điểm giữ/trừ số lượng và cách hoàn lại khi hủy đơn.
+- Không cho đặt vượt số lượng hoặc tiếp tục mua sản phẩm đã hết hàng.
+- Xử lý nhất quán khi nhiều người cùng đặt mua một sản phẩm.
+
+6. Các quy tắc dữ liệu quan trọng
+
+- Khi giỏ hàng chứa sản phẩm của nhiều người bán, tách thành đơn riêng cho từng người bán.
+- Tính giá và tổng tiền từ dữ liệu phía server.
+- Không cho người dùng tự đặt mua sản phẩm của mình.
+- Băm mật khẩu; sử dụng PreparedStatement cho truy vấn có tham số.
+- Sử dụng transaction cho các thao tác cần nhất quán, đặc biệt tạo/hủy đơn và cập nhật số lượng.
+- Không xóa mất dữ liệu sản phẩm hoặc tài khoản cần được giữ để đối chiếu đơn hàng cũ; đề xuất cơ chế ẩn hoặc ngừng hoạt động phù hợp.
+- Cấu hình kết nối database phải tách khỏi code nghiệp vụ.
+- Nếu repository đã có database, khảo sát trước và đề xuất cách bổ sung cấu trúc mà vẫn giữ dữ liệu hiện có.
+
+7. Cách triển khai ở các lượt sau
+
+Triển khai lần lượt:
+
+- Cấu trúc dự án, database và kết nối JDBI.
+- Tài khoản và phân quyền.
+- Đăng bán, quản lý và kiểm duyệt sản phẩm.
+- Trang chủ, danh mục, tìm kiếm và chi tiết sản phẩm.
+- Giỏ hàng và tạo đơn.
+- Xử lý đơn, thanh toán mô phỏng và quản lý số lượng.
+- Đánh giá theo đơn.
+- Khiếu nại.
+- Kiểm tra tích hợp và chuẩn bị demo.
+
+Mỗi phần phải hoàn thành xuyên suốt từ giao diện, Controller, Service, DAO đến database liên quan.
+
+Sau mỗi phần, chạy kiểm tra phù hợp và báo cáo:
+
+- Những file đã thay đổi.
+- Cách chạy và thao tác kiểm tra.
+- Kết quả kiểm tra thực tế.
+- Những vấn đề còn tồn tại.
+- Giải thích ngắn gọn cách chức năng hoạt động để tôi có thể hiểu và trình bày với giáo viên.
+
+8. Kết quả cần cung cấp trong lượt đầu
+
+Hãy thực hiện:
+
+- Khảo sát repository và tóm tắt trạng thái hiện tại.
+- Tổng hợp chức năng theo vai trò, chỉ ra quy tắc còn thiếu hoặc mâu thuẫn.
+- Đề xuất kiến trúc và cấu trúc thư mục.
+- Thiết kế database tổng thể: bảng, trường quan trọng, khóa chính, khóa ngoại, quan hệ và ràng buộc.
+- Đề xuất cách lưu thông tin sản phẩm trong đơn, quản lý số lượng và phân quyền.
+- Lập kế hoạch triển khai từng phần với tiêu chí hoàn thành có thể kiểm tra.
+- Lưu quy ước làm việc vào AGENTS.md và tài liệu yêu cầu/thiết kế/kế hoạch vào thư mục docs, phù hợp với cấu trúc repository hiện có.
+
+Lượt này chỉ hoàn thành phần khảo sát và thiết kế. Chưa chạy SQL thay đổi database thực tế hoặc lập trình các chức năng nghiệp vụ. Nếu chưa truy cập được MySQL, vẫn hoàn thành thiết kế và nêu rõ điều kiện cần để chạy database ở lượt triển khai tiếp theo.
