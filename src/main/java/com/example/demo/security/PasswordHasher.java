@@ -4,7 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 
-/** Hash dùng chung cho seed và M2; chưa triển khai chức năng đăng nhập. */
+/** Hash dùng chung cho seed và xác thực tài khoản, BCrypt 2b/cost 12. */
 public final class PasswordHasher {
     public static final int COST = 12;
     public String hash(char[] password) {

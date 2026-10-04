@@ -2,7 +2,7 @@
 
 Ngày khảo sát: **03/10/2026**, múi giờ Asia/Bangkok. Đề tài: “Thiết kế mô hình nền tảng kết nối người mua – người bán”. Chưa chốt thương hiệu/ngành hàng.
 
-**Trạng thái: M1 đã triển khai nền tảng, schema/seed và JDBI; chưa triển khai nghiệp vụ M2 trở đi.** SQL/JDBI đã thử trên MySQL 9.1.0 riêng, HTTP trên Tomcat 10.1.48. Báo cáo hiện tại ở [M1](reports/M1-nen-tang.md); 01/06 lưu kết quả khảo sát lịch sử.
+**Trạng thái: M1 và M2 đã triển khai nền tảng, schema/JDBI, tài khoản và phân quyền; M3 trở đi chưa triển khai.** M2 đạt 20 unit + 24 integration/HTTP tests trên MySQL 9.1.0 riêng và Tomcat 10.1.48. Báo cáo hiện tại ở [M2](reports/M2-tai-khoan.md); M1/01/06 lưu kết quả các lượt trước.
 
 | Tài liệu | Nội dung |
 | --- | --- |
@@ -15,6 +15,10 @@ Ngày khảo sát: **03/10/2026**, múi giờ Asia/Bangkok. Đề tài: “Thi�
 | [06 — Kiểm tra lượt đầu](06-kiem-tra-luot-dau.md) | Kiểm tra đã chạy, kết quả và điều kiện tiếp theo |
 | [07 — Chuẩn bị môi trường](07-chuan-bi-moi-truong.md) | Thông tin MySQL/schema/credential/Tomcat cần bổ sung và cấu hình mẫu |
 | [Báo cáo M1](reports/M1-nen-tang.md) | File thay đổi, kiểm thử thực tế, cách chạy và giới hạn |
+| [Khắc phục cấu hình M1](reports/M1-khac-phuc-cau-hinh.md) | Lựa chọn file local, lỗi migrate, 13 unit tests và bước cần điền credential |
+| [08 — Tài khoản và phân quyền](08-tai-khoan-va-phan-quyen.md) | Chạy M2, tuyến Servlet/JSP/Filter, quy tắc và checklist kiểm tra |
+| [Báo cáo M2](reports/M2-tai-khoan.md) | File thay đổi, 20 unit + 24 integration/HTTP tests và giới hạn |
+| [Khắc phục 503 Tomcat](reports/M2-khac-phuc-tomcat-config.md) | Thiếu cấu hình DB trong IntelliJ, cách đặt VM options và 22 unit tests |
 
 Các quyết định chính để đọc trước:
 
@@ -25,6 +29,6 @@ Các quyết định chính để đọc trước:
 5. Chỉ người mua xác nhận nhận hàng để hoàn thành; review sau hoàn thành, khiếu nại có thể mở trước đó.
 6. Đề xuất giữ Tomcat 10.1.x và đồng bộ Servlet API về 6.0.0 ở M1. MySQL mục tiêu 8.4 LTS; máy hiện có binary MySQL 9.1.0 trong WAMP, có thể dùng schema riêng nếu kiểm tra tương thích đạt.
 
-Quy ước cộng tác nằm trong [AGENTS.md](../AGENTS.md). Cách cấu hình SQL/build/deploy nằm trong [README](../README.md) và [hướng dẫn database](../database/README.md). Bước tiếp theo là M2 khi được người dùng yêu cầu.
+Quy ước cộng tác nằm trong [AGENTS.md](../AGENTS.md). Cách cấu hình SQL/build/deploy nằm trong [README](../README.md) và [hướng dẫn database](../database/README.md). Bước tiếp theo là M3 khi được người dùng yêu cầu.
 
 Lượt khảo sát trước chỉ thiết kế; lượt hiện tại người dùng đã yêu cầu triển khai M1 thực tế. AppConfig hiện đọc biến môi trường/file cấu hình cục bộ ngoài WAR. Chưa có schema/credential `c2c_demo` trên WAMP của người dùng; instance thử có datadir riêng và không thay đổi dữ liệu WAMP.

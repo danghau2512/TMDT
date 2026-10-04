@@ -20,7 +20,7 @@ Service mở `Jdbi.inTransaction` hoặc `useTransaction`, attach các DAO vào 
 
 ## Cấu trúc sẽ tạo ở các mốc sau
 
-Giữ Maven/WAR và package hiện có. M1 đã tạo controller/service/dao/model/config/listener/filter/security cho kiểm tra khởi động; các lớp nghiệp vụ/dto/storage dưới đây vẫn là mục tiêu của các mốc sau, không tạo skeleton không hoạt động.
+Giữ Maven/WAR và package hiện có. M1 có các lớp hạ tầng; M2 đã có controller/auth, controller/admin, UserService/AccountValidation, UserDao, model/dto/exception tài khoản, SessionAuth/CsrfTokens và AccessFilter. Các lớp catalog/buyer/seller/storage còn là mục tiêu mốc sau; không tạo skeleton không hoạt động.
 
 ```text
 demo/
@@ -95,6 +95,7 @@ Thông báo lỗi hiển thị tiếng Việt, không in stacktrace/SQL ra brows
 - Một DataSource pool/Jdbi cho ứng dụng; connection sử dụng UTF-8, UTC, timeout hữu hạn. `DATETIME(6)` trong DB là UTC theo quy ước; UI định dạng múi giờ Asia/Bangkok. `javax.sql.DataSource` thuộc Java SE, không phải việc trộn `javax.servlet`.
 - M1 đã pin BCrypt 0.10.2, variant 2b/cost 12/salt riêng cho seed; M2 dùng PasswordHasher chung, đo work factor cho máy demo khi hoàn thiện login. Không lưu plaintext hoặc cắt mật khẩu dài âm thầm; email trim/lowercase và unique ở M2.
 - Dùng HttpSession, đổi session ID khi login, invalidate khi logout; cookie HttpOnly/SameSite, Secure khi HTTPS. Kiểm tra user ACTIVE và role từ dữ liệu đáng tin khi xử lý request; role không nhận từ form đăng ký.
+- M2 khai báo thứ tự Filter trong web.xml: EncodingFilter REQUEST/FORWARD trước AccessFilter REQUEST. AccessFilter kiểm user ACTIVE/quyền từ DB rồi CSRF cho POST. Index chỉ forward HomeServlet; các JSP nghiệp vụ trong WEB-INF. Session chỉ chứa CurrentUser(id,displayName,role); hash chỉ tồn tại nội bộ DAO/Service, không ra JSP/session. Cookie SameSite=Lax qua cấu hình Servlet 6; khi triển khai HTTPS cần cấu hình connector/proxy để request.isSecure phản ánh HTTPS.
 - Escape toàn bộ tên/mô tả/review/message bằng JSTL `c:out`; mô tả MVP là text thường. CSRF token cho login/logout và POST thay đổi; nonce chống tạo đơn lặp **khác** CSRF.
 - Upload JPEG/PNG/WebP tối đa 5 MB/file, tối đa 5 ảnh/tin hoặc khiếu nại lần đầu; kiểm tra bytes/MIME thực và kích thước ảnh, tối đa 20 megapixel. File name do server tạo, cấm SVG/HTML/script và traversal, không dùng tên client làm đường dẫn.
 - Storage ngoài webroot và ngoài thư mục WAR để redeploy không mất ảnh. Media endpoint kiểm tra quyền; bằng chứng không được gắn URL file public. Snapshot ảnh chỉ order buyer/seller/admin được đọc nếu ảnh gốc đã bị ẩn. Có placeholder khi asset hỏng nhưng báo admin; không âm thầm dùng ảnh mới thay snapshot cũ.

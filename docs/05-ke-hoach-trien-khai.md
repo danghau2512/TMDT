@@ -21,7 +21,9 @@ Các mốc thực hiện **ở những lượt tiếp theo** theo yêu cầu ng�
 
 ## M2 — Tài khoản và phân quyền
 
-**Thực hiện:** form register/login/profile/logout; Auth/ProfileServlet → UserService → UserDao/users; hash mật khẩu, validate/duplicate email, session/CSRF, auth/admin filters. Seed admin không có mật khẩu mặc định công khai trong source.
+**Tiến độ 04/10/2026:** đã hoàn thành tài khoản và phân quyền, 20 unit + 24 integration/HTTP tests đạt trên MySQL/Tomcat test riêng; xem [báo cáo M2](reports/M2-tai-khoan.md). Database người dùng và V001 được giữ nguyên; không cần migration bổ sung. HTTP test đã kiểm đăng ký/đăng nhập/profile/logout, seed USER/ADMIN, session fixation/replay, CSRF, XSS và giả mạo role/ID. Chưa triển khai M3.
+
+**Thực hiện:** form register/login/profile/logout; Register/Login/Logout/ProfileServlet → UserService → UserDao/users; BCrypt 2b/cost12, validate/duplicate email, session/CSRF, AccessFilter kiểm đăng nhập/admin. Seed admin dùng mật khẩu fixture công khai đã ghi README từ M1, chỉ dành cho demo; không phải credential production. Điều chỉnh câu cũ về seed để thống nhất với dữ liệu demo đã triển khai.
 
 **Hoàn thành khi:** đăng ký và login đúng/sai có thông báo; DB không có plaintext; email trùng bị chặn cả hai request đồng thời; logout làm session mất hiệu lực; user sửa được hồ sơ mình nhưng không đổi role/status. USER vào admin bằng URL trực tiếp bị chặn. Thay role/buyer_id/user_id trong request không nâng quyền.
 

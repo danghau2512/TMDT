@@ -12,6 +12,14 @@
 
 Không có role BUYER/SELLER tách rời. Chỉ `USER` và `ADMIN`; mua/bán là quan hệ với tài nguyên. ADMIN vẫn có thể dùng luồng USER nhưng chịu mọi luật mua/bán. Không mở thêm màn hình quản trị người dùng vượt phạm vi; cột status/role được chuẩn bị để seed admin và ngừng hoạt động khi cần.
 
+## Quy tắc tài khoản đã triển khai tại M2
+
+- Email là định danh đăng nhập; trim/lowercase, tối đa 254 ký tự, local part tối đa 64 ký tự, dạng ASCII thông thường có domain chứa dấu chấm; không hỗ trợ quoted local part/IDN trong MVP. DB UNIQUE email vẫn quyết định xung đột kể cả đăng ký đồng thời.
+- Đăng ký nhận họ tên 2–100 ký tự, email, phone tùy chọn (9–15 chữ số, có thể có dấu +), mật khẩu ít nhất 8 ký tự Unicode/tối đa 72 byte UTF-8 và xác nhận khớp. Mật khẩu không trim/cắt; BCrypt 2b cost 12 như seed. Role/status do server cố định USER/ACTIVE.
+- Hồ sơ sửa display_name, phone, public_contact (tối đa 255 ký tự). Email là readonly; đổi email cần xác minh riêng ngoài M2. Không sửa mật khẩu, role/status ở form này. ID lấy từ session; DTO không có ID/quyền/status do client cung cấp.
+- Đăng nhập chỉ ACTIVE; thất bại dùng cùng thông báo cho email không tồn tại/sai mật khẩu/ngừng hoạt động. Session đổi ID và CSRF token khi login, timeout 30 phút không hoạt động; logout POST hủy session. Filter đọc lại ACTIVE và role từ DB, không dùng role cũ trong session để cho phép admin.
+- GET/POST các tuyến account/admin/seller/buyer/cart/checkout được kiểm đăng nhập ở server; admin yêu cầu ADMIN. POST có CSRF, lỗi form trả 400, CSRF/quyền trả 403, DB không sẵn sàng trả 503; POST thành công redirect 303. JSP escape dữ liệu, không gửi lại password.
+
 ## Các điểm chưa được đặc tả và giả định đề xuất
 
 Những quyết định dưới đây **chưa được người dùng chốt**, là cơ sở thiết kế nhất quán để triển khai sau. Không cần trả lời ngay trong lượt đầu.

@@ -1,0 +1,20 @@
+<nav aria-label="Điều hướng chính">
+    <a class="brand" href="<c:url value='/home' />">Chợ C2C · Nhóm 6</a>
+    <div class="nav-actions">
+        <c:choose>
+            <c:when test="${not empty currentUser}">
+                <span>Xin chào, <strong><c:out value="${currentUser.displayName}" /></strong></span>
+                <a href="<c:url value='/account/profile' />">Hồ sơ</a>
+                <c:if test="${currentUser.admin}"><a href="<c:url value='/admin' />">Quản trị</a></c:if>
+                <form method="post" action="<c:url value='/logout' />" class="inline-form">
+                    <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}' />">
+                    <button class="secondary" type="submit">Đăng xuất</button>
+                </form>
+            </c:when>
+            <c:otherwise>
+                <a href="<c:url value='/login' />">Đăng nhập</a>
+                <a href="<c:url value='/register' />">Đăng ký</a>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</nav>

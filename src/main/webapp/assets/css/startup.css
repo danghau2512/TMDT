@@ -9,4 +9,21 @@ section { margin-top: 24px; padding: 20px 24px; border: 1px solid #dce4e9; borde
 h2 { font-size: 1.2rem; margin-top: 0; }
 .ok { color: #166747; }
 a { color: #155c95; }
+nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid #dce4e9; }
+.brand { font-weight: 700; text-decoration: none; }
+.nav-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.inline-form { margin: 0; }
+.account-card { max-width: 580px; margin-left: auto; margin-right: auto; }
+.account-card h1 { font-size: 2rem; }
+.account-form { display: grid; gap: 10px; }
+.account-form label { font-weight: 600; margin-top: 6px; }
+input { width: 100%; border: 1px solid #a8bbc9; border-radius: 7px; padding: 11px 12px; font: inherit; background: #fff; color: #1c2935; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #7ab8e1; outline-offset: 2px; }
+button { background: #155c95; color: white; border: 1px solid #155c95; border-radius: 7px; padding: 10px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+.account-form button { margin-top: 12px; }
+button.secondary { background: white; color: #155c95; padding: 6px 12px; }
+.error { color: #a32729; font-size: .95rem; }
+.error:empty { display: none; }
+.notice { color: #166747; background: #eef9f2; padding: 12px 16px; border-radius: 7px; }
+small { color: #526877; line-height: 1.5; }
 @media (max-width: 600px) { main { margin: 0 auto; padding: 20px; } }

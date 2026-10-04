@@ -13,6 +13,8 @@ public final class Database implements AutoCloseable {
     private final Jdbi jdbi;
     public Database(DatabaseConfig config) {
         HikariConfig pool = new HikariConfig();
+        // Lifecycle có thể deregister driver; pool mới cần tự khởi tạo driver trong cùng JVM test.
+        pool.setDriverClassName("com.mysql.cj.jdbc.Driver");
         pool.setJdbcUrl(config.url());
         pool.setUsername(config.username());
         pool.setPassword(config.password());

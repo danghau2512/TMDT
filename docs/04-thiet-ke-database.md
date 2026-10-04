@@ -64,6 +64,8 @@ ERD thể hiện quan hệ chính; các actor/reviewer/buyer/seller FK và audit
 
 Không xóa user đã tham gia giao dịch. Đổi hồ sơ không đổi thông tin giao hàng/seller snapshot của đơn cũ. Không lưu password plain, không lưu BUYER/SELLER thành role.
 
+M2 dùng nguyên bảng này, không sửa V001 hoặc cần ALTER. Đăng ký normalize email và insert USER/ACTIVE với BCrypt; UNIQUE uq_users_email bảo vệ race. Hồ sơ chỉ update display_name/phone/public_contact/updated_at, khóa hàng theo ID session trong transaction và kiểm ACTIVE; email/role/status/password_hash không nhận từ form hồ sơ.
+
 ### 2. categories — danh mục một cấp
 
 `id` PK; `name` VARCHAR(100); `slug` VARCHAR(120) UNIQUE; `status` ACTIVE/INACTIVE; `sort_order` INT mặc định 0; created_at/updated_at. FK từ product. Không thêm parent_id chưa cần thiết; nếu phát triển danh mục nhiều cấp phải migration riêng. Ngừng danh mục không xóa sản phẩm/đơn cũ.
