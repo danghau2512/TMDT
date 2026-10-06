@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEnabled) {
+public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEnabled, Path uploadRoot, Optional<VnpayConfig> vnpay) {
     public static AppConfig load() throws IOException {
         return load(System.getProperty("c2c.config"), System.getenv());
     }
@@ -50,7 +50,10 @@ public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEn
             catch (NumberFormatException exception) { throw new ConfigurationException("DB_CONNECTION_TIMEOUT_MS / db.pool.connectionTimeoutMs phải là số nguyên từ 1000 đến 30000 ms."); }
             database = Optional.of(new DatabaseConfig(url, username, password, size, timeout));
         }
-        return new AppConfig(database, Boolean.parseBoolean(flag));
+        String storage = value(properties, environment, "UPLOAD_ROOT", "upload.root", "");
+        Path uploadRoot = storage.isBlank() ? Path.of(System.getProperty("user.home"), ".c2c-demo", "uploads") : Path.of(storage);
+        if (!uploadRoot.isAbsolute()) throw new ConfigurationException("UPLOAD_ROOT / upload.root phải là đường dẫn tuyệt đối ngoài WAR.");
+        return new AppConfig(database, Boolean.parseBoolean(flag), uploadRoot.normalize(), VnpayConfig.from(properties,environment));
     }
     private static String value(Properties properties, Map<String, String> environment, String env, String key, String fallback) {
         return environment.containsKey(env) ? environment.get(env) : properties.getProperty(key, fallback);

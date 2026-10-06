@@ -1,6 +1,24 @@
-# Nền tảng C2C — Đồ án TMĐT nhóm 6
+# TraoTay — Đồ cũ, giá trị mới.
 
-**M1 và M2 đã triển khai:** nền tảng Servlet/JSP, SQL cho 22 bảng, MySQL/JDBI; đăng ký, đăng nhập/đăng xuất, hồ sơ và phân quyền USER/ADMIN. Đăng bán, giỏ hàng và xử lý đơn thuộc các mốc sau.
+**Giỏ hàng AJAX (05/10/2026):** thay nút “Cập nhật” bằng −/+; nhập số lượng rồi Enter hoặc rời ô cũng tự lưu. Số lượng, thành tiền, tổng giỏ và xóa sản phẩm cập nhật không tải lại trang. Có thông báo lỗi/kết nối và nút kiểm tra lại nếu chưa xác nhận trạng thái server. Build `.\mvnw.cmd -B verify`, Rebuild artifact rồi Stop/Run Tomcat và Ctrl+F5; **không cần SQL**. [Các file, demo và kiểm tra thực tế](docs/reports/Gio-hang-AJAX.md).
+
+**Ảnh trang chủ (05/10/2026):** khu sản phẩm mới đăng dùng khung vuông lớn hơn, hiển thị trọn ảnh; desktop 3 cột/tablet 2/điện thoại 1. Ctrl+F5 sau cập nhật artifact, không cần SQL. [File và kiểm tra thực tế](docs/reports/Anh-san-pham-trang-chu.md).
+
+**Gợi ý tìm kiếm (05/10/2026):** nhập từ khóa ở header để xem tối đa 8 sản phẩm công khai với ảnh, tên và giá; click hoặc ↑/↓ + Enter mở chi tiết. Có “Xem tất cả kết quả”, giữ tìm kiếm thường khi mất mạng/tắt JS. Rebuild artifact rồi Stop/Run Tomcat và Ctrl+F5, không cần SQL. [File, kiểm tra và ảnh desktop/mobile](docs/reports/Tim-kiem-goi-y.md).
+
+Website C2C — Đồ án TMĐT nhóm 6. **Nhận diện và tiếng Việt (05/10/2026):** dùng nguyên logo `src/main/webapp/assets/images/Logo.png`, thống nhất typography và asset UTF-8, cập nhật header/footer/auth/title. Build `./mvnw.cmd -B verify`, Rebuild artifact rồi Stop/Run Tomcat và Ctrl+F5; không cần SQL/migration. Xem [chẩn đoán, file, ảnh và kiểm tra thực tế](docs/reports/TraoTay-tieng-Viet.md). Font Segoe UI/fallback có sẵn cục bộ; khẩu hiệu “Đồ cũ, giá trị mới.”.
+
+**Bốn nâng cấp (05/10/2026):** trung tâm khiếu nại, đánh giá có ảnh, khai báo hàng cũ/snapshot và so sánh 2–3 sản phẩm đã triển khai. `c2c_demo` đã backup và áp V004 một lần, dữ liệu cũ giữ nguyên, không seed/demo vào DB ứng dụng. Rebuild artifact rồi Stop/Run Tomcat; không SOURCE V004 lại. [Hướng dẫn 5–7 phút](docs/14-demo-bon-nang-cap.md), [file/kiểm tra thực tế](docs/reports/Bon-nang-cap-trai-nghiem.md).
+
+
+**Chat mua bán (05/10/2026):** đã có nút Chat với người bán, hộp thư và tin nhắn tự cập nhật. `c2c_demo` đã được backup và áp V003, giữ dữ liệu cũ; không chạy lại SQL/seed. Rebuild artifact rồi Stop/Run Tomcat. Xem [demo bằng hai cửa sổ](docs/13-demo-chat-mua-ban.md) và [báo cáo/ảnh/kiểm tra thực tế](docs/reports/Chat-mua-ban.md).
+
+**Cập nhật 05/10/2026:** checkout mới dùng COD hoặc VNPAY Sandbox theo từng đơn. Đọc [hướng dẫn cấu hình/migration/HTTPS/demo VNPAY](docs/12-vnpay-sandbox.md) trước khi chạy. `c2c_demo` standalone đã được nâng V002 sau backup; không chạy V002/seed lại. Rebuild và restart Tomcat để nhận Java/config mới.
+
+**Khắc phục HTTPS VNPAY trên máy Windows hiện tại:** đã bật `vnpay.tls.useWindowsRoot=true` trong file local, chỉ dùng kho CA Windows cho client VNPAY. Rebuild artifact rồi **Stop/Run Tomcat**. Kiểm tra độc lập: chọn `APP_CONFIG_FILE`, chạy `.\mvnw.cmd -B compile exec:java '-Dexec.args=vnpay-check'`. HTTPS đã kiểm tra thành công, HTTP 405 với HEAD; không thay đổi database/thanh toán. Xem [hướng dẫn chi tiết](docs/12-vnpay-sandbox.md#https-querydr-trên-windows) và [báo cáo](docs/reports/VNPAY-khac-phuc-HTTPS.md).
+
+
+**M1–M8 đã có luồng demo:** tài khoản, mua bán, snapshot, COD/VNPAY Sandbox, đánh giá theo đơn và khiếu nại riêng tư. Xem [demo mua bán 5–7 phút](docs/09-demo-mua-ban.md), [demo thêm M7–M8 2–3 phút](docs/10-demo-danh-gia-khieu-nai.md) và [báo cáo mới](docs/reports/M7-M8-danh-gia-khieu-nai.md).
 
 ## Môi trường
 
@@ -88,7 +106,7 @@ $configPath = (Resolve-Path .\config\application.local.properties).Path
 
 Tham số trên chỉ chọn đường dẫn file; `DB_*` vẫn ưu tiên các giá trị trong file. Lỗi cấu hình sẽ nêu khóa thiếu/sai hoặc đường dẫn file không đọc được, không in giá trị cấu hình. Lỗi kết nối sau khi cấu hình hợp lệ vẫn được che nguyên nhân chứa credential; kiểm tra MySQL đang chạy, host/port, schema đã tạo và quyền của user theo mục 1. Không tự thử tài khoản root hay mật khẩu rỗng.
 
-- `migrate` chạy V001, tạo 22 bảng nghiệp vụ và `flyway_schema_history`. Chạy lại trả số migration 0 nếu không có migration mới. Không baseline tự động database có bảng sẵn, không clean/reset; không tự chạy khi deploy.
+- `migrate` trên schema trống chạy V001 + V002, tạo 23 bảng nghiệp vụ và `flyway_schema_history`. Chạy lại trả số migration 0 nếu không có migration mới. Không baseline tự động database có bảng sẵn, không clean/reset; không tự chạy khi deploy.
 - `seed` chạy [seed.sql](src/main/resources/db/seed.sql) trong transaction + named lock. Chạy lại không nhân đôi, không reset hồ sơ/giá/kho/hash đã tồn tại. ID fixture ghi rõ trong script; xung đột cần khảo sát, không REPLACE/INSERT IGNORE.
 - `check` in `JDBI SELECT 1 = 1` khi thành công. Lỗi trả exit code thất bại với thông báo không chứa credential.
 
@@ -139,7 +157,7 @@ Context có thể là `/demo_war_exploded` trong IntelliJ; link/assets tính the
 
 ## 5. Kiểm thử
 
-`clean verify` chạy **22 unit tests**, không cần DB, gồm cấu hình, BCrypt, validation tài khoản, CSRF và phân biệt nguyên nhân account service không sẵn sàng. Integration test cần schema riêng hậu tố `_test`, config trỏ đúng schema và user có quyền DDL/DML:
+`clean verify` chạy **27 unit tests**, không cần DB, gồm cấu hình, BCrypt, validation tài khoản, CSRF và phân biệt nguyên nhân account service không sẵn sàng. Integration test cần schema riêng hậu tố `_test`, config trỏ đúng schema và user có quyền DDL/DML:
 
 ```powershell
 # APP_CONFIG_FILE trỏ cấu hình schema test, ví dụ c2c_m1_test.
@@ -180,7 +198,7 @@ resources/db/ schema.sql, seed.sql, migration/V001__initial_schema.sql
 webapp/     index.jsp, WEB-INF/views/home.jsp, assets/css/startup.css
 ```
 
-Servlet gọi Service; Service mở Handle qua Database và attach DAO; DAO dùng JDBI bind/PreparedStatement tới MySQL. Callback kết thúc đóng Handle, trả connection về pool. `Database.transaction(...)` mở READ COMMITTED, các DAO cùng Handle; lỗi rollback toàn transaction. Chưa có transaction nghiệp vụ tạo/hủy đơn. [JDBI transactions](https://jdbi.org/releases/3.55.0/#_transactions).
+Servlet gọi Service; Service mở Handle qua Database và attach DAO; DAO dùng JDBI bind/PreparedStatement tới MySQL. Callback kết thúc đóng Handle, trả connection về pool. `Database.transaction(...)` mở READ COMMITTED, các DAO cùng Handle; lỗi rollback toàn transaction. ProductService/CartService/OrderService dùng transaction nghiệp vụ; tạo/hủy đơn đồng bộ kho, thanh toán và history. [JDBI transactions](https://jdbi.org/releases/3.55.0/#_transactions).
 
 ## Kết quả và giới hạn
 
@@ -192,4 +210,94 @@ Xác minh tiếp cùng ngày sau khi người dùng sửa file local: đặt APP
 
 M2 ngày 04/10/2026: **20 unit + 24 integration/HTTP tests đạt** trên MySQL 9.1.0:13316/schema c2c_m2_test và Tomcat 10.1.48:18080 riêng. Kiểm cả đổi mã phiên, logout/replay, XSS, CSRF, role/status cập nhật và ownership hồ sơ. Không sửa database ứng dụng hoặc file local của người dùng; M2 không cần migration mới. [Báo cáo M2/danh sách file](docs/reports/M2-tai-khoan.md) ghi lệnh, kết quả và giới hạn.
 
-Thiết kế: [docs/README.md](docs/README.md). M3 trở đi chưa triển khai. Commit đề xuất: `feat: triển khai tài khoản, hồ sơ và phân quyền USER ADMIN`.
+Thiết kế: [docs/README.md](docs/README.md). Các đoạn kết quả phía trên lưu lịch sử M1/M2. Kết quả mới và cách chạy luồng mua bán ở phần dưới.
+
+## Chạy bản demo mua bán M3–M6 trên Windows
+
+Giữ nguyên file local và credential đã dùng ở M2. Không cần migration mới: 22 bảng hiện có đủ dùng; V001/schema.sql/seed.sql không bị sửa. Nếu DB đã nhập schema.sql mà chưa có Flyway history, không tự baseline/reset/chạy schema lại; ứng dụng vẫn dùng schema đúng cấu trúc. Chỉ migrate/seed theo phần chuẩn bị phía trên khi tạo **schema trống riêng**, hoặc khi history/schema đã được đối chiếu và sao lưu.
+
+```powershell
+# Terminal Maven; không đưa password vào command.
+$env:APP_CONFIG_FILE = (Resolve-Path .\config\application.local.properties).Path
+.\mvnw.cmd -B compile exec:java '-Dexec.args=check'
+.\mvnw.cmd -B verify
+```
+
+WAR tạo ở `target/demo-1.0-SNAPSHOT.war`. Redeploy WAR này trên Tomcat 10.1, hoặc cập nhật artifact WAR exploded trong IntelliJ rồi restart Tomcat. Cấu hình **riêng cho tiến trình Tomcat** bằng APP_CONFIG_FILE hoặc VM option `-Dc2c.config=C:/duong-dan-tuyet-doi/config/application.local.properties`. Maven check thành công không chứng minh Tomcat đã nhận cùng cấu hình. Với IntelliJ, mở `http://localhost:8080/demo_war_exploded/home`; context thực tế có thể khác theo Deployment.
+
+Ảnh JPEG/PNG lưu ngoài WAR, không vào source/target. Tùy chọn trong file local:
+
+```properties
+# Dùng / trên Windows, account chạy Tomcat phải có quyền đọc/ghi.
+upload.root=C:/c2c-data/uploads
+```
+
+Biến `UPLOAD_ROOT` ưu tiên hơn khóa file; mặc định `user.home/.c2c-demo/uploads`. Vị trí phải tuyệt đối. Sao lưu DB và thư mục ảnh cùng nhau; khi đổi storage root phải chuyển nguyên bytes/file cũ để snapshot không mất ảnh. Không lưu ảnh hoặc cấu hình thật vào repository. Không tự migrate, seed hoặc approve sản phẩm lúc deploy.
+
+Các trang chính: `/home`, `/products`, `/categories`, `/products/detail?id=ID`, `/cart`, `/checkout`, `/buyer/orders`, `/seller/products`, `/seller/products/new`, `/seller/orders`, `/admin/products`, `/admin/orders`. Dùng prefix context của WAR. Admin chọn seller ACTIVE khi tạo thay; seller thường không chọn/gán lại chủ tin. Các POST chỉ gửi qua biểu mẫu có CSRF.
+
+Fixture M1/M2 giữ nguyên: `admin@c2c.example`, `seller1@c2c.example`, `seller2@c2c.example`, `buyer1@c2c.example`, `buyer2@c2c.example`, password demo công khai `C2cDemo!2026` nếu chưa đổi. **Seed giữ tin HIDDEN/PENDING:** trước demo, Admin sửa chế độ PUBLIC rồi duyệt có lý do, hoặc seller đăng mới. Có ảnh mặc định nên không cần dữ liệu ảnh giả. Xem [kịch bản 5–7 phút và quyền/trạng thái](docs/09-demo-mua-ban.md).
+
+## Kiểm tra bản mua bán
+
+`.\mvnw.cmd -B verify` chạy 22 unit tests và tạo WAR. Kiểm tra ghi chỉ dùng schema `_test` dành riêng, đã migrate/seed và sao lưu, với file APP_CONFIG_FILE riêng. Không dùng `application.local.properties` của ứng dụng cho kiểm tra ghi. Deploy Tomcat loopback riêng với **cùng file test**, không trỏ vào Tomcat chứa dữ liệu người dùng.
+
+```powershell
+$env:APP_CONFIG_FILE = 'C:/duong-dan/file-test.local.properties'
+$env:C2C_IT_ALLOWED = 'true'
+$env:C2C_HTTP_BASE = 'http://127.0.0.1:18080/c2c'
+# Bộ M1/M2 chạy trước trên schema fixture sạch (giả định 4 products seed).
+.\mvnw.cmd -B verify -Pmysql-it
+# Các kịch bản thương mại chạy riêng, để lại tin/đơn fixture trong schema test.
+.\mvnw.cmd -B verify -Pmysql-it '-Dit.test=CommerceIT,ShopHttpIT'
+```
+
+Nếu chưa có Tomcat test, bỏ C2C_HTTP_BASE: HTTP test bị skip, không được báo đã kiểm HTTP. CommerceIT cần CREATE/DROP TRIGGER trong **schema test riêng** để ép lỗi tại seller thứ hai và kiểm rollback; script thử nghiệm không thay database ứng dụng. HttpTestTarget xác minh Tomcat đọc được tài khoản nonce chỉ tạo trong DB test trước các HTTP ghi. Với schema test đã chứa fixture thương mại, không chạy lại DatabaseIT (giả định số dòng seed); chọn một schema test mới và deploy lại cùng config. Không DROP/reset schema đang có dữ liệu.
+
+Lượt triển khai đã chạy trên MySQL 9.1.0/InnoDB riêng và Tomcat 10.1.48: 22 unit, 24 kiểm tra M1/M2 và 4 kiểm tra mới (3 Service/MySQL + 1 hành trình HTTP). Báo cáo [M3–M6](docs/reports/M3-M6-mua-ban.md) phân biệt kết quả, lỗi đã sửa và giới hạn. Không xác nhận deploy mới trên IntelliJ/WAMP của người dùng.
+
+Các giới hạn tại thời điểm M3–M6 được giữ trong báo cáo lịch sử; M7–M8 đã bổ sung đánh giá/khiếu nại bên dưới. Thu/hoàn tiền thật, tự hết hạn đơn, stress đầy đủ, MySQL 8.4 và kiểm UI trên mọi kích thước vẫn chưa thực hiện.
+
+## M7–M8: Đánh giá và khiếu nại
+
+Không cần migration mới: đã đọc cấu trúc thực tế trên `c2c_demo`, các bảng reviews/complaints/evidence/messages/history và ràng buộc khớp V001. Giữ DB, file local, storage và credential của bạn; không chạy lại schema.sql hoặc reset dữ liệu. Build `.\mvnw.cmd -B verify`, redeploy `target/demo-1.0-SNAPSHOT.war` trên Tomcat 10.1 rồi restart với APP_CONFIG_FILE / `-Dc2c.config` đang dùng. Chưa xác nhận bản WAR này trên IntelliJ của bạn.
+
+| Chức năng | Route |
+| --- | --- |
+| Form đánh giá từ dòng đơn COMPLETED | GET /buyer/reviews/new?orderId=ID&itemId=ID |
+| Gửi đánh giá | POST /buyer/reviews/create |
+| Danh sách/form/chi tiết khiếu nại buyer | GET /buyer/complaints, /buyer/complaints/new?orderId=ID, /buyer/complaints/detail?id=ID |
+| Gửi/bổ sung khiếu nại kèm ảnh | POST /buyer/complaints/create, /buyer/complaints/supplement |
+| Admin list/filter/detail/xử lý | GET /admin/complaints?status=RECEIVED, /admin/complaints/detail?id=ID; POST /admin/complaints/action |
+| Ảnh minh chứng có quyền | GET /media/complaint-evidence?complaintId=ID&asset=ID |
+
+Thêm prefix context Tomcat, ví dụ `http://localhost:8080/demo_war_exploded`. Dùng liên kết từ chi tiết đơn và Hồ sơ/Quản trị; các POST có CSRF qua form. Buyer chỉ đánh giá dòng thuộc đơn của mình đã COMPLETED, một lần/dòng. Form có số sao chung 1–5 và nhận xét; V001 giữ hai cột rating bắt buộc nên lưu cùng điểm, chưa có UI điểm seller riêng. Đã gửi thì chi tiết đơn hiển thị nội dung, catalog công khai chỉ hiển thị review VISIBLE từ đơn hoàn thành, nhãn xác thực do server quyết định.
+
+Mỗi đơn **một hồ sơ khiếu nại**, kể cả đã xử lý; gửi lại dẫn về hồ sơ đó. Buyer phản ánh ở mọi trạng thái đơn, bổ sung khi mở. Admin RECEIVED → PROCESSING → RESOLVED với phản hồi và kết quả; có thể mở lại và giữ lịch sử kết luận trước. Nội dung 5.000 ký tự; ảnh tùy chọn dùng storage M3, 5 ảnh/lần, 20 ảnh/hồ sơ. Ảnh chỉ buyer của hồ sơ/Admin tải; seller và khách không được đọc.
+
+RECEIVED/PROCESSING chặn buyer COMPLETE dưới cùng khóa order. RESOLVED mở lại khả năng xác nhận nếu đơn đã DELIVERED/PAID; **không** tự hoàn thành đơn. Complaint sau COMPLETED không đảo trạng thái. Đóng hồ sơ không tự hủy/hoàn kho/đổi payment; kết quả “Đơn đã được hủy” chỉ dùng khi đơn đã CANCELLED qua luồng đơn hàng. Review edit/delete/response/moderation và thanh toán thật ngoài phạm vi.
+
+Tài khoản fixture vẫn dùng theo demo M3: admin@c2c.example, seller1@c2c.example, buyer1@c2c.example; password công khai `C2cDemo!2026` nếu bạn chưa đổi. Chuẩn bị một đơn COMPLETED để review và một đơn chưa hoàn thành để complaint; không tự thêm dữ liệu giả vào DB ứng dụng khi deploy.
+
+Kiểm tra M7/M8 trên cấu hình và Tomcat **test riêng** đã migrate/seed, có hậu tố `_test` và C2C_IT_ALLOWED=true:
+
+```powershell
+$env:APP_CONFIG_FILE = 'C:/duong-dan/file-test.local.properties'
+$env:C2C_IT_ALLOWED = 'true'
+$env:C2C_HTTP_BASE = 'http://127.0.0.1:18080/c2c'
+.\mvnw.cmd -B verify -Pmysql-it '-Dit.test=ReputationIT,FeedbackHttpIT'
+```
+
+ReputationIT có 3 kịch bản Service/MySQL, FeedbackHttpIT có 1 hành trình HTTP, tái sử dụng guard/browser sẵn có. mysql-it mặc định vẫn chỉ M1/M2 trên fixture sạch; có thể chạy lại commerce riêng như phần trước. HTTP bị skip nếu thiếu C2C_HTTP_BASE. Xem [báo cáo M7–M8](docs/reports/M7-M8-danh-gia-khieu-nai.md) cho lệnh, kết quả thực tế và giới hạn; chưa kiểm trình duyệt thủ công. Commit gợi ý: `feat: bổ sung đánh giá theo đơn và xử lý khiếu nại C2C`.
+
+## Giao diện marketplace và trình chiếu
+
+Giao diện hiện tại dùng teal, nền sáng, shell header/footer chung, menu theo vai trò và sidebar quản lý; các trang catalog, tài khoản, mua bán, review/khiếu nại và Admin cùng hệ thống card/form/badge. Font/SVG/CSS/JS được lưu hoặc có sẵn cục bộ, không cần CDN.
+
+- [Báo cáo giao diện và ảnh desktop/mobile](docs/reports/UI-hoan-thien-giao-dien.md).
+- [Checklist build/redeploy và chuẩn bị ảnh demo](docs/11-checklist-giao-dien.md).
+- Tên thương hiệu: `src/main/webapp/WEB-INF/views/layouts/brand.jspf`; theme: `assets/css/startup.css`; tương tác bổ sung: `assets/js/marketplace.js` (từ gốc webapp).
+
+Build ` .\mvnw.cmd -B verify `, redeploy WAR trên Tomcat 10.1 rồi restart/reload ứng dụng. Giữ cấu hình DB/storage hiện có; **không cần migration hoặc seed**. Mở `/home` trong context đang dùng và nhấn **Ctrl+F5** nếu còn asset cũ. CSS/JS có version query trong `shop-start.jspf` để hỗ trợ cập nhật cache.
+
+Ảnh chụp báo cáo dùng fixture của schema test riêng. Ảnh minh họa được ghi rõ; dữ liệu và upload của ứng dụng không thay đổi. Để demo catalog đẹp trên máy bạn, chuẩn bị ảnh chụp đúng sản phẩm, upload qua form seller và duyệt lại tin khi cần. Không có số sao/lượt mua/thống kê trang trí giả.

@@ -29,6 +29,11 @@ public final class LoginServlet extends HttpServlet {
                 return;
             }
             SessionAuth.login(request, user.get());
+            var session=request.getSession(false);Object resume=session.getAttribute("chatReturnTo");session.removeAttribute("chatReturnTo");
+            // Đích do Filter tạo, chỉ allowlist tuyến chat; không nhận URL redirect từ request.
+            if(resume instanceof String target && target.matches("/messages/start\\?productId=[1-9][0-9]{0,17}")) {
+                AccountSupport.redirect(request,response,target);return;
+            }
             AccountSupport.redirect(request, response, user.get().isAdmin() ? "/admin" : "/home");
         } finally { Arrays.fill(password, '\0'); }
     }

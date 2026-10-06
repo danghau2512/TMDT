@@ -1,20 +1,9 @@
-<nav aria-label="Điều hướng chính">
-    <a class="brand" href="<c:url value='/home' />">Chợ C2C · Nhóm 6</a>
-    <div class="nav-actions">
-        <c:choose>
-            <c:when test="${not empty currentUser}">
-                <span>Xin chào, <strong><c:out value="${currentUser.displayName}" /></strong></span>
-                <a href="<c:url value='/account/profile' />">Hồ sơ</a>
-                <c:if test="${currentUser.admin}"><a href="<c:url value='/admin' />">Quản trị</a></c:if>
-                <form method="post" action="<c:url value='/logout' />" class="inline-form">
-                    <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}' />">
-                    <button class="secondary" type="submit">Đăng xuất</button>
-                </form>
-            </c:when>
-            <c:otherwise>
-                <a href="<c:url value='/login' />">Đăng nhập</a>
-                <a href="<c:url value='/register' />">Đăng ký</a>
-            </c:otherwise>
-        </c:choose>
-    </div>
-</nav>
+<%@ page pageEncoding="UTF-8" %>
+<header class="site-header"><div class="header-main">
+<a class="brand" href="<c:url value='/home' />"><img class="brand-logo" src="${appLogoUrl}" alt="TraoTay — Trang chủ" width="2172" height="724"><small class="brand-slogan"><c:out value="${appSlogan}" /></small></a>
+<form class="header-search" method="get" action="<c:url value='/products' />" role="search" data-search-suggestions data-suggest-url="<c:url value='/products/suggestions' />"><svg class="icon" aria-hidden="true"><use href="#i-search" /></svg><input name="keyword" maxlength="100" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="search-suggestion-list" aria-label="Tìm kiếm sản phẩm" placeholder="Tìm món đồ bạn yêu thích..." value="<c:out value='${param.keyword}' />"><button type="submit">Tìm kiếm</button><div class="search-suggestions" hidden><p class="search-caption">Gợi ý sản phẩm</p><div id="search-suggestion-list" role="listbox" aria-label="Sản phẩm gợi ý"></div><p class="search-status" data-search-status></p><a class="search-all" href="<c:url value='/products' />">Xem tất cả kết quả →</a></div><span class="sr-only" data-search-announcement role="status" aria-live="polite"></span></form>
+<div class="header-actions"><a class="cart-link" href="<c:url value='/cart' />" aria-label="Giỏ hàng"><svg class="icon" aria-hidden="true"><use href="#i-cart" /></svg><span>Giỏ hàng</span></a>
+<details class="account-menu"><summary aria-label="Menu tài khoản"><svg class="icon" aria-hidden="true"><use href="#i-user" /></svg><span><c:out value="${empty currentUser ? 'Tài khoản' : currentUser.displayName}" /></span></summary><div class="account-dropdown">
+<c:choose><c:when test="${not empty currentUser}"><span class="menu-label">Tài khoản của bạn</span><a href="<c:url value='/account/profile' />">Hồ sơ cá nhân</a><a href="<c:url value='/buyer/orders' />">Đơn mua</a><a href="<c:url value='/buyer/complaints' />">Khiếu nại của tôi</a><span class="menu-label">Khu vực người bán</span><a href="<c:url value='/seller/products' />">Tin của tôi</a><a href="<c:url value='/seller/orders' />">Đơn bán</a><c:if test="${currentUser.admin}"><a href="<c:url value='/admin' />">Quản trị nền tảng</a></c:if><form method="post" action="<c:url value='/logout' />"><input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}' />"><button type="submit" class="secondary">Đăng xuất</button></form></c:when><c:otherwise><a href="<c:url value='/login' />">Đăng nhập</a><a href="<c:url value='/register' />">Tạo tài khoản</a></c:otherwise></c:choose>
+</div></details><a class="button" href="<c:url value='/seller/products/new' />">+ Đăng bán</a></div></div>
+<nav class="header-nav" aria-label="Điều hướng chính"><a href="<c:url value='/home' />" ${pagePath == '/home' ? 'aria-current="page"' : ''}>Trang chủ</a><a href="<c:url value='/products' />" ${fn:startsWith(pagePath, '/products') ? 'aria-current="page"' : ''}>Khám phá sản phẩm</a><a href="<c:url value='/messages' />" ${fn:startsWith(pagePath, '/messages') ? 'aria-current="page"' : ''}>Tin nhắn<c:if test="${not empty currentUser}"><span class="chat-count chat-nav-count" data-chat-unread data-context="${pageContext.request.contextPath}" ${empty unreadTotal or unreadTotal == 0 ? 'hidden' : ''}><c:out value="${unreadTotal}" default="0" /></span></c:if></a><a href="<c:url value='/categories' />" ${pagePath == '/categories' ? 'aria-current="page"' : ''}>Danh mục</a><c:if test="${not empty currentUser}"><a href="<c:url value='/buyer/orders' />">Theo dõi đơn</a></c:if><span class="nav-note">Một tài khoản, kết nối cộng đồng mua &amp; bán</span></nav></header>

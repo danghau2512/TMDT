@@ -27,13 +27,19 @@ public class DatabaseIT {
     }
     @AfterAll static void close() { if (database != null) database.close(); JdbcLifecycle.shutdown(); }
 
-    @Test void schemaHasAll22InnoDbTablesAndForeignKeys() throws Exception {
+    @Test void schemaHasAllCurrentInnoDbTablesAndForeignKeys() throws Exception {
         Set<String> expected = new HashSet<>();
         var matcher = Pattern.compile("CREATE TABLE (\\w+)").matcher(Files.readString(Path.of("src/main/resources/db/schema.sql")));
         while (matcher.find()) expected.add(matcher.group(1));
         Set<String> actual = database.read(h -> new HashSet<>(h.createQuery("SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name <> 'flyway_schema_history'").mapTo(String.class).list()));
-        assertEquals(22, expected.size()); assertEquals(expected, actual);
-        assertEquals(22, (int) database.read(h -> h.createQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND engine='InnoDB' AND table_name <> 'flyway_schema_history'").mapTo(Integer.class).one()));
+        assertEquals(22, expected.size());
+        try(var migrations=Files.list(Path.of("src/main/resources/db/migration"))) {
+            for(var migration:migrations.filter(p->!p.getFileName().toString().startsWith("V001") && p.toString().endsWith(".sql")).toList()) {
+                var additions=Pattern.compile("CREATE TABLE (\\w+)").matcher(Files.readString(migration));while(additions.find())expected.add(additions.group(1));
+            }
+        }
+        assertEquals(expected, actual);
+        assertEquals(expected.size(), (int) database.read(h -> h.createQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND engine='InnoDB' AND table_name <> 'flyway_schema_history'").mapTo(Integer.class).one()));
         assertTrue(database.read(h -> h.createQuery("SELECT COUNT(*) FROM information_schema.referential_constraints WHERE constraint_schema=DATABASE()").mapTo(Integer.class).one()) >= 40);
     }
     @Test void migrationRerunDoesNotRunV001Again() { assertEquals(0, new SchemaManager(database).migrate()); }

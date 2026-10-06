@@ -1,5 +1,13 @@
 # Script và migration MySQL
 
+**Trạng thái mới 05/10/2026:** V004 đã áp sau backup trên c2c_demo standalone V003; giữ nguyên 25 bảng cũ, review_images trống. Hiện 26 bảng nghiệp vụ (27 với Flyway history). Không SOURCE V004 lại, không auto baseline/migrate/seed trên schema standalone. [Hướng dẫn migration mới](../docs/14-demo-bon-nang-cap.md), [bằng chứng](../docs/reports/Bon-nang-cap-trai-nghiem.md). Các số lượng M1 bên dưới là baseline lịch sử.
+
+
+**Các phiên bản sau baseline:** V002 thêm VNPAY, V003 thêm chat. `schema.sql` vẫn là baseline V001 (22 bảng); cài mới bằng Flyway áp cả ba phiên bản cho 25 bảng nghiệp vụ + history. `c2c_demo` standalone đã nâng V002/V003 sau backup, không chạy SOURCE hoặc seed lại. Đọc [hướng dẫn chat/migration](../docs/13-demo-chat-mua-ban.md) trước khi nâng một bản cài khác.
+
+**Nâng cấp VNPAY (05/10/2026):** dùng V002 sau V001. Schema do Flyway quản lý chạy migrate sau backup; schema standalone không có history dùng quy trình SOURCE một lần đã mapping. `c2c_demo` của máy này đã áp V002, không chạy lại. [Quy trình đầy đủ](../docs/12-vnpay-sandbox.md#2-migration-và-dữ-liệu).
+
+
 | File | Công dụng |
 | --- | --- |
 | `database/create-database.sql` | Tạo c2c_demo nếu chưa tồn tại, không drop/reset |

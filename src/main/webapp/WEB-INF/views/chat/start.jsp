@@ -1,0 +1,5 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ include file="../layouts/shop-start.jspf" %>
+<section class="chat-welcome"><span class="chat-symbol" aria-hidden="true">✉</span><p class="eyebrow">KẾT NỐI TRƯỚC KHI MUA</p><h1>Hỏi người bán một chút nhé</h1><p>Trao đổi về tình trạng, giá và cách nhận hàng. Bạn chưa cần đặt đơn.</p><h2><c:out value="${product.title}" /></h2><p>Người bán: <strong><c:out value="${product.seller_name}" /></strong></p>
+<c:choose><c:when test="${currentUser.id == product.seller_id}"><p class="notice">Đây là sản phẩm của bạn, bạn không thể chat với chính mình.</p></c:when><c:otherwise><form method="post" action="<c:url value='/messages/start' />"><input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}' />"><input type="hidden" name="productId" value="${product.id}"><button>Bắt đầu trò chuyện</button></form></c:otherwise></c:choose><p><a href="<c:url value='/products/detail'><c:param name='id' value='${product.id}' /></c:url>">← Quay lại sản phẩm</a></p></section>
+<%@ include file="../layouts/shop-end.jspf" %>

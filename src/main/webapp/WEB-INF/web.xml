@@ -3,11 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
-    <display-name>Nền tảng C2C - Nhóm 6</display-name>
+    <display-name>TraoTay - Nhóm 6</display-name>
+    <!-- Windows có platform charset Cp1252; assets của dự án luôn là UTF-8. -->
+    <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+        <init-param><param-name>fileEncoding</param-name><param-value>UTF-8</param-value></init-param>
+        <init-param><param-name>listings</param-name><param-value>false</param-value></init-param>
+        <init-param><param-name>readonly</param-name><param-value>true</param-value></init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
     <filter><filter-name>encoding</filter-name><filter-class>com.example.demo.filter.EncodingFilter</filter-class></filter>
     <filter-mapping><filter-name>encoding</filter-name><url-pattern>/*</url-pattern><dispatcher>REQUEST</dispatcher><dispatcher>FORWARD</dispatcher></filter-mapping>
     <filter><filter-name>access</filter-name><filter-class>com.example.demo.filter.AccessFilter</filter-class></filter>
     <filter-mapping><filter-name>access</filter-name><url-pattern>/*</url-pattern><dispatcher>REQUEST</dispatcher></filter-mapping>
     <welcome-file-list><welcome-file>index.jsp</welcome-file></welcome-file-list>
     <session-config><session-timeout>30</session-timeout><cookie-config><http-only>true</http-only><attribute><attribute-name>SameSite</attribute-name><attribute-value>Lax</attribute-value></attribute></cookie-config><tracking-mode>COOKIE</tracking-mode></session-config>
+    <request-character-encoding>UTF-8</request-character-encoding>
+    <response-character-encoding>UTF-8</response-character-encoding>
 </web-app>

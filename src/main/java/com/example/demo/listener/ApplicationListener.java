@@ -20,6 +20,7 @@ public final class ApplicationListener implements ServletContextListener {
             AppConfig config = AppConfig.load();
             diagnostics = config.diagnosticsEnabled();
             database = config.database().map(Database::new);
+            database.ifPresent(db -> event.getServletContext().setAttribute(ShopServices.KEY,new ShopServices(db,config.uploadRoot(),config.vnpay())));
             if (database.isEmpty()) event.getServletContext().log(
                     "[DATABASE_NOT_CONFIGURED] Tomcat chưa có cấu hình DB. Đặt APP_CONFIG_FILE hoặc -Dc2c.config "
                     + "trong Run Configuration; biến của terminal Maven không tự truyền sang IntelliJ/Tomcat.");

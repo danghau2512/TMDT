@@ -2,8 +2,9 @@ package com.example.demo.config;
 
 import com.example.demo.dao.HealthDao;
 import com.example.demo.security.PasswordHasher;
+import com.example.demo.payment.VnpayHttpClient;
 
-/** migrate | seed | check; credential lấy từ AppConfig, không từ command args. */
+/** Credential lấy từ AppConfig, không từ command args. vnpay-check không mở DB. */
 public final class DatabaseTool {
     private DatabaseTool() { }
     public static void main(String[] arguments) throws Exception {
@@ -13,8 +14,12 @@ public final class DatabaseTool {
             for (int i = 0; i < 5; i++) System.out.println(hasher.hash("C2cDemo!2026".toCharArray()));
             return;
         }
+        if ("vnpay-check".equals(command)) {
+            checkVnpayTls();
+            return;
+        }
         if (!java.util.Set.of("migrate","seed","check").contains(command)) {
-            throw new IllegalArgumentException("Cách dùng: DatabaseTool migrate | seed | check");
+            throw new IllegalArgumentException("Cách dùng: DatabaseTool migrate | seed | check | vnpay-check");
         }
         DatabaseConfig config;
         try {
@@ -36,5 +41,19 @@ public final class DatabaseTool {
             throw new IllegalStateException("Thao tác DB thất bại (" + exception.getClass().getSimpleName()
                     + "). Kiểm tra endpoint, quyền và trạng thái schema theo README.");
         } finally { JdbcLifecycle.shutdown(); }
+    }
+    private static void checkVnpayTls() {
+        try {
+            var config=AppConfig.load().vnpay().orElseThrow(() -> new ConfigurationException(
+                    "Chưa bật vnpay.enabled. Chọn cấu hình bằng c2c.config / APP_CONFIG_FILE theo hướng dẫn demo."));
+            int status=new VnpayHttpClient(config).checkTls();
+            System.out.println("VNPAY HTTPS OK, HTTP " + status + ". Chỉ kiểm tra TLS; không xác nhận/thay đổi thanh toán hoặc database.");
+        } catch (ConfigurationException exception) {
+            throw new IllegalStateException(exception.getMessage());
+        } catch (Exception exception) {
+            if(exception instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new IllegalStateException("Kiểm tra VNPAY HTTPS thất bại (" + exception.getClass().getSimpleName()
+                    + "). Kiểm tra mạng và vnpay.tls.useWindowsRoot / truststore theo docs/12-vnpay-sandbox.md.");
+        }
     }
 }

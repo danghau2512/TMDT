@@ -1,0 +1,7 @@
+<%@ page pageEncoding="UTF-8" %>
+<c:set var="appBrand" value="TraoTay" />
+<c:set var="appSlogan" value="Đồ cũ, giá trị mới." />
+<c:url var="appLogoUrl" value="/assets/images/Logo.png" />
+<c:set var="pagePath" value="${requestScope['jakarta.servlet.forward.servlet_path']}" />
+<c:set var="adminArea" value="${not empty currentUser and currentUser.admin and fn:startsWith(pagePath, '/admin')}" />
+<c:set var="accountArea" value="${not empty currentUser and (fn:startsWith(pagePath, '/buyer/') or fn:startsWith(pagePath, '/seller/') or fn:startsWith(pagePath, '/account/'))}" />

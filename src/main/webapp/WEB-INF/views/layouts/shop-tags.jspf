@@ -1,0 +1,8 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<c:set var="labels" value="${{'NEW':'Mới','LIKE_NEW':'Như mới','USED':'Đã qua sử dụng','PENDING':'Chờ xác nhận','CONFIRMED':'Đã xác nhận','SHIPPED':'Đang giao','DELIVERED':'Đã giao','COMPLETED':'Hoàn thành','CANCELLED':'Đã hủy','APPROVED':'Đã duyệt','REJECTED':'Từ chối','PUBLIC':'Công khai','HIDDEN':'Đã ẩn','UNPAID':'Chưa thanh toán','PENDING_CONFIRMATION':'Chờ thanh toán','PAID':'Đã thanh toán','VOIDED':'Đã vô hiệu','VNPAY_SANDBOX':'VNPAY Sandbox – môi trường thử nghiệm','REFUND_PENDING':'Chờ xử lý hoàn tiền','REFUND_SIMULATED':'Đã hoàn tiền mô phỏng','COD':'Thanh toán khi nhận hàng (COD)','BANK_TRANSFER_SIMULATED':'Chuyển khoản mô phỏng','CONFIRM':'Xác nhận đơn','SHIP':'Bắt đầu giao','DELIVER':'Ghi nhận đã giao','COMPLETE':'Xác nhận đã nhận hàng','CANCEL':'Hủy đơn','PAY':'Thanh toán mô phỏng'}}" />
+
+<c:set var="conditionLabels" value="${{'LIKE_NEW':'Như mới','LIGHT_SCRATCHES':'Trầy xước nhẹ','WORN':'Dấu hiệu sử dụng rõ','NORMAL':'Hoạt động bình thường','FAULTY':'Có lỗi','NEEDS_REPAIR':'Cần sửa chữa','NEVER':'Chưa sửa','REPAIRED':'Đã sửa','UNKNOWN':'Không rõ','NOT_APPLICABLE':'Không áp dụng'}}" />
+<c:set var="gatewayLabels" value="${{'PENDING':'Đang xác nhận','FAILED':'Thất bại / đã hủy','EXPIRED':'Hết hạn','SUCCEEDED':'Thành công','NEEDS_REVIEW':'Cần đối chiếu','SUPERSEDED':'Đã có giao dịch khác xác nhận'}}" />

@@ -1,5 +1,8 @@
 # 04 — Thiết kế database tổng thể
 
+**Bổ sung V002 ngày 05/10/2026:** thiết kế hiện tại gồm 23 bảng nghiệp vụ, 24 bảng vật lý khi có Flyway history. V001/schema.sql vẫn là bản gốc bất biến. Thêm `vnpay_attempts` FK order: unique ref, một PENDING/đơn, amount DECIMAL, thời điểm tạo/hết hạn, gateway transaction/bank/paydate/codes/source. Payments thêm VNPAY_SANDBOX/REFUND_PENDING, history hỗ trợ actor NULL + SYSTEM chỉ cho callback. Chi tiết migration/backup ở [12 — VNPAY](12-vnpay-sandbox.md). Các mô tả 22 bảng và simulated phía dưới lưu thiết kế gốc; quyết định V002 thay phần thanh toán mới.
+
+
 **Thiết kế 22 bảng đã được triển khai ở M1** trong schema.sql/V001 và kiểm tra trên MySQL 9.1.0 với datadir/schema test riêng. MySQL 8.4 LTS vẫn là mục tiêu chưa kiểm thử trực tiếp; không dùng MariaDB thay mặc định. Xem [báo cáo M1](reports/M1-nen-tang.md).
 
 ## Quy ước kiểu dữ liệu và khóa
@@ -95,7 +98,7 @@ Không lưu sold_flag riêng. Admin sửa thay seller được audit; không s�
 
 ### 5. product_images — thứ tự ảnh tin hiện tại
 
-`id` PK; `product_id` FK products; `asset_id` FK media_assets; `sort_order` INT UNSIGNED >= 0; `alt_text?` VARCHAR(255); created_at. UNIQUE(product_id, sort_order), UNIQUE(product_id, asset_id); vị trí 0 là ảnh đại diện, 1–5 ảnh/tin do Service kiểm tra.
+`id` PK; `product_id` FK products; `asset_id` FK media_assets; `sort_order` INT UNSIGNED >= 0; `alt_text?` VARCHAR(255); created_at. UNIQUE(product_id, sort_order), UNIQUE(product_id, asset_id); vị trí 0 là ảnh đại diện, 0–5 ảnh/tin do Service kiểm tra. Tin thiếu ảnh dùng ảnh mặc định theo yêu cầu triển khai M3–M6.
 
 Sửa tin có thể gỡ quan hệ product_images; không xóa asset vì ảnh có thể còn trong đơn cũ. Asset phải purpose PRODUCT_IMAGE và người upload có quyền đối với tin.
 
@@ -214,15 +217,15 @@ Tham chiếu asset **chỉ đủ khi bytes bất biến và không bị xóa**. 
 
 ## Transaction tạo đơn nhiều người bán
 
-Thuật toán thiết kế, không phải code đã triển khai:
+Luồng đã triển khai tại M3–M6 (không thay đổi V001):
 
 1. Kiểm session ACTIVE, CSRF, idempotency key, form nhận hàng/phương thức. Chuẩn hóa/hash payload; nếu batch cùng buyer/key đã commit, kiểm hash rồi trả kết quả cũ, không đọc lại giỏ đã rỗng.
-2. Mở transaction trên một Handle, khóa carts của buyer. Mọi add/update/remove giỏ cũng phải khóa bản ghi carts này. Kiểm tra lại idempotency key sau khi có khóa để xử lý hai request đồng thời.
-3. Đọc items của giỏ; khóa products theo **ID tăng dần**, khóa/read lại danh mục và seller cần thiết theo thứ tự nhất quán. Sau khóa kiểm buyer != seller, PUBLIC/APPROVED, seller/category ACTIVE, listing_version khớp bản xem lại, quantity đủ. Việc sửa ảnh/nội dung tin cũng khóa product trước để snapshot không trộn hai phiên bản.
+2. Mở transaction trên một Handle, khóa tài khoản actor ACTIVE rồi kiểm batch cùng buyer/key. Khóa carts của buyer; mọi add/update/remove cũng khóa actor/cart theo cùng thứ tự. Khóa actor làm hai request của cùng buyer tuần tự, bao gồm retry key.
+3. Đọc items của giỏ; khóa products theo **ID tăng dần** rồi đọc lại dữ liệu join seller/category ở READ COMMITTED. Sau khóa kiểm buyer != seller, PUBLIC/APPROVED, seller/category ACTIVE, listing_version khớp bản xem lại, quantity đủ. Sửa ảnh/nội dung tin cũng khóa product trước để snapshot không trộn hai phiên bản. Chưa có chức năng khóa seller/category; mốc triển khai chức năng này phải đồng bộ khóa với checkout.
 4. Tính subtotal theo giá DB đang khóa. Nếu listing_version/cart version khác trang checkout, rollback và yêu cầu xem lại, không âm thầm dùng tổng cũ.
-5. Nhóm theo seller; tạo batch và mỗi seller một order, tất cả item/snapshot ảnh, payment, order/payment history ban đầu. Trừ khả dụng từng product bằng update có điều kiện stock_quantity >= quantity và kiểm số dòng cập nhật; thêm ORDER_HOLD; tăng stock_version.
+5. Nhóm theo seller; tạo batch và mỗi seller một order, tất cả item/snapshot ảnh, payment, order/payment history ban đầu. Kiểm tồn sau SELECT FOR UPDATE rồi cập nhật trên cùng Handle/transaction; thêm ORDER_HOLD, tăng stock_version. Khóa được giữ đến commit/rollback, không có khoảng trống giữa đọc và ghi.
 6. Xóa các cart_items đã đặt, tăng cart.version; commit toàn bộ. Nếu một item lỗi/insert lỗi thì rollback đơn, kho, batch, payment, giỏ và history. Không có đơn của seller A tồn tại khi seller B thất bại trong cùng checkout.
-7. Redirect kết quả batch cho buyer. Khi retry do deadlock chỉ retry toàn transaction tối đa 2 lần bằng cùng key; hết retry báo thử lại. Không retry riêng câu trừ kho.
+7. Redirect kết quả batch cho buyer. Bản demo chưa tự retry deadlock; lỗi DB rollback và báo không khả dụng. Người dùng gửi lại cùng key/nội dung được kết quả đã commit hoặc thực hiện transaction mới nếu chưa commit; không retry riêng câu trừ kho.
 
 Khóa InnoDB phải nằm trong transaction, đọc tồn trước rồi trừ ở connection khác là không đủ. [MySQL locking reads](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html). Isolation đề xuất READ COMMITTED; không dùng SKIP LOCKED vì có thể bỏ mất sản phẩm của giỏ. Thứ tự khóa và rollback/retry cần test trên engine thật.
 
@@ -234,7 +237,7 @@ Khóa InnoDB phải nằm trong transaction, đọc tồn trước rồi trừ �
 - Chuyển trạng thái khác: khóa order, kiểm transition rồi cập nhật/history; DELIVERED COD đổi payment/history cùng transaction. Không tin version/status client làm nguồn hiện tại.
 - Tạo/giải quyết khiếu nại và xác nhận nhận/review đều khóa **order trước**. Tạo complaint + history/evidence/message cùng transaction, kiểm item/buyer theo FK ghép. COMPLETED phải đọc kiểm complaint đang mở dưới cùng khóa order để tránh đua tạo complaint/nhận hàng.
 - Review: khóa order, kiểm COMPLETED/current buyer, insert review; UNIQUE(order_item_id) chặn hai tab gửi đồng thời. Complaint sau COMPLETED vẫn được tiếp nhận và review cũ được giữ.
-- Thứ tự chung đối với tài nguyên đã có: cart (nếu cần) → order IDs tăng dần → product IDs tăng dần → payment → complaint. Checkout tạo order mới sau khóa product không khóa order cũ; mọi flow chỉnh tin khóa product trước ảnh. Không flow khóa complaint rồi quay lại order. Actor và danh mục nếu khóa phải có quy ước ID tăng dần nhất quán trong implementation; test deadlock vẫn bắt buộc.
+- Thứ tự tại demo: actor → cart → product IDs tăng dần khi checkout; actor → order → payment → product IDs tăng dần khi hủy. Checkout tạo order/payment mới nên không chờ khóa order/payment có sẵn. Sửa tin khóa actor → product → ảnh. M7/M8 phải thống nhất actor → order → payment/complaint và tránh khóa ngược. Đã kiểm hai checkout cạnh tranh tồn cuối; chưa stress deadlock phối hợp mọi thao tác.
 
 Stock khả dụng sau hold = trước − quantity, sau cancel = khả dụng hiện tại + quantity. Đây là mô hình đơn giản cho đồ án; chưa quản lý tồn vật lý/đang vận chuyển bằng nhiều ledger riêng, chưa có timeout/job tự động và không tự bù kho khi hàng hỏng.
 
@@ -255,3 +258,54 @@ DDL cụ thể ở `src/main/resources/db/schema.sql`, migration V001 tương đ
 - Timestamps mặc định CURRENT_TIMESTAMP(6) ở schema; kết nối JDBI/session SQL đặt UTC. updated_at do Service cập nhật khi thay đổi, không tự đổi khi seed no-op.
 - Seed có 5 tài khoản BCrypt 2b/cost 12/salt riêng và 4 sản phẩm, giữ HIDDEN/PENDING vì chưa có ảnh thật. Không tạo metadata ảnh trỏ file không tồn tại hoặc duyệt tin thiếu ảnh; bổ sung ở M3.
 - Không viết ALTER cho schema legacy chưa được cung cấp. Schema có bảng chưa có Flyway history bị từ chối; cần khảo sát/backup/mapping và migration riêng, không tự baseline hay drop.
+
+## Quyết định bổ sung tại M3–M6
+
+Không cần thêm bảng/cột hoặc migration: 22 bảng V001 đủ cho mua bán. Không sửa schema.sql, seed.sql hay V001 đã áp. Quy tắc ảnh mặc định thay yêu cầu “tin phải có ảnh” ở thiết kế M1; seed cũ vẫn HIDDEN/PENDING, Admin chủ động sửa PUBLIC rồi duyệt khi demo. Không tự công khai dữ liệu cũ khi deploy.
+
+Ghi chú checkout lưu history khởi tạo; snapshot và thông tin giao nhận chỉ đọc trên đơn. Chuyển khoản mô phỏng cho phép buyer của đơn bấm PAY theo yêu cầu mới, không thêm trạng thái. MediaServlet xác minh quyền theo asset + order khi tải snapshot; URL ảnh sản phẩm chỉ tải ảnh hiện tại khi tin công khai, hoặc chủ tin/Admin.
+
+## Quyết định bổ sung tại M7–M8
+
+Đã khảo sát **read-only SHOW CREATE TABLE** trên c2c_demo/MySQL 9.1.0 cho reviews, complaints, complaint_evidence, complaint_messages, complaint_status_history và media_assets; cấu trúc khớp V001, có UNIQUE/FK/CHECK cần thiết. Không thay đổi schema hoặc dữ liệu ứng dụng, không cần migration mới và không sửa V001/schema.sql/seed.sql.
+
+Form M7 có một số sao chung; `product_rating` và `seller_rating` cùng giá trị, UI sản phẩm dùng product_rating. Product/seller liên kết qua order_items/orders; nhãn mua xác thực do join đúng đơn COMPLETED quyết định. Chỉ VISIBLE tính trung bình; danh sách hiển thị tối đa 100 review mới nhất, summary tính toàn bộ review hợp lệ.
+
+Form M8 phản ánh cả đơn (`order_item_id=NULL`), lý do 4 lựa chọn, title suy ra phía server. Nội dung/phản hồi theo giới hạn 5.000 ký tự đã thiết kế. UNIQUE(order_id) giữ một hồ sơ mãi mãi; gửi lại trả ID cũ. Khi mở lại, cột kết luận hiện tại về NULL để thỏa CHECK, kết quả cũ vẫn trong history/messages. assigned_admin_id lưu Admin xử lý, resolved_at lưu thời điểm; các messages/history lưu actor và thời điểm.
+
+ComplaintService khóa actor → order → complaint; COMPLETE cũng khóa actor → order trước kiểm RECEIVED/PROCESSING. Không thay payment/order khi đóng hồ sơ; kết quả ORDER_CANCELLED chỉ chấp nhận nếu đơn thực sự CANCELLED. Media evidence chỉ đọc sau kiểm buyer/Admin, luôn kiểm quan hệ asset/complaint/purpose. Không đưa ảnh evidence vào product_images hoặc order_item_images.
+
+## Mở rộng chat trước khi mua — V003, 05/10/2026
+
+Baseline 22 bảng và V002 vnpay_attempts giữ nguyên. Không có bảng chat thương mại trước lượt này; complaint_messages giữ use case khiếu nại. V003 thêm hai bảng, tổng 25 bảng nghiệp vụ; Flyway history là bảng công cụ thứ 26 ở schema do Flyway quản lý.
+
+```mermaid
+erDiagram
+    products ||--o{ chat_conversations : subject
+    users ||--o{ chat_conversations : prospective_buyer
+    users ||--o{ chat_conversations : listing_seller
+    chat_conversations ||--o{ chat_messages : contains
+    users ||--o{ chat_messages : sends
+```
+
+### chat_conversations
+
+id BIGINT UNSIGNED PK; product_id FK products; buyer_id/seller_id FK users, CHECK khác nhau, UNIQUE(product_id,buyer_id,seller_id). Seller suy ra từ sản phẩm, khóa actor → product khi bắt đầu; không lấy seller từ request. product_title_snapshot VARCHAR(200) giữ tên ban đầu khi tin mất quyền public; không lưu lại credential/contact trong chat.
+
+buyer_read_id/seller_read_id BIGINT UNSIGNED mặc định 0 là cursor đã đọc, không phải FK vì 0 biểu thị chưa đọc và tránh vòng FK với messages. Service kiểm through ID thuộc conversation và chỉ tăng GREATEST. created_at/updated_at DATETIME(6) UTC. updated_at chỉ tăng khi gửi tin, không khi đọc để không đảo hộp thư sai. Index buyer/time/id và seller/time/id.
+
+### chat_messages
+
+id BIGINT UNSIGNED PK; conversation_id FK conversations, sender_id FK users. body VARCHAR(2000), utf8mb4, CHECK độ dài; Service trim/kiểm 1–2.000 Unicode code points/NUL. client_nonce ASCII CHAR(36) UUID, UNIQUE(conversation_id,sender_id,client_nonce) để retry không nhân tin. created_at DATETIME(6) UTC. Index conversation/id cho phân trang, conversation/sender/id cho unread. Không cascade delete và chưa có UI xóa/sửa.
+
+Quyền participant và ACTIVE được kiểm lại ở Service cho mọi đọc/ghi, DAO còn lọc participant trong truy vấn metadata/lock. Transaction send/read khóa actor → conversation; các DAO cùng Handle, không giữ Handle qua request. Cùng conversation khóa nối tiếp việc cấp ID/lưu tin và cập nhật cursor; rollback lỗi giữ nguyên tin/cursor. Không khóa đối tác ngược chiều để tránh hai người trả lời bị deadlock. Chỉ tin từ người kia có id > read cursor mới tính chưa đọc.
+
+Đã thử V001/V002/V003 trên c2c_chat_test/MySQL 9.1.0 InnoDB và chạy lại migrate trả 0. Trên c2c_demo, khảo sát xác nhận standalone V002 không history/không chat; backup .local-test/c2c-demo-before-chat-20261005.sql, áp V003 một lần, đối chiếu fingerprint dữ liệu của cả 23 bảng cũ không đổi. Hai bảng mới trống, không seed hoặc thử ghi chat vào database ứng dụng. [Báo cáo](reports/Chat-mua-ban.md).
+
+## V004 — Ảnh đánh giá và khai báo hàng cũ (05/10/2026)
+
+26 bảng nghiệp vụ, thêm review_images(id,review_id FK reviews,asset_id FK media_assets,sort_order0..2,created_at). UNIQUE(review_id,sort_order), UNIQUE(review_id,asset_id), indexasset và CHECK sort; không xóa cascade. Media purpose thêm REVIEW_IMAGE, không mở quyền đọc evidence.
+
+Products thêm appearance_code/operation_code/repair_code VARCHAR24 với CHECK allowlist/NOT_APPLICABLE, known_defects/repair_details/accessories VARCHAR1000, tất cả NULL cho bản ghi cũ. Order_items thêm sáu trường *_snapshot tương ứng; checkout chép từ tin đang khóa, không cập nhật snapshot sau đó. Product_images.is_defect và order_item_images.is_defect_snapshot BOOLEAN default false/CHECK 0–1; bytes ảnh vẫn bất biến theo storage hiện tại. Không sửa V001–V003/schema baseline.
+
+Đã khảo sát SHOW CREATE sáu bảng, full backup và fingerprints từng cột cũ/rowcounts cho 25 bảng c2c_demo standalone V003. Sau rehearsal trên c2c_upgrades_test, áp V004 một lần; tất cả dữ liệu cột cũ giữ nguyên, review_images trống. Không fixture write DB ứng dụng. Backup ignored `.local-test/c2c-demo-before-upgrades-20261005.sql`. DDL implicit commit, không SOURCE lại toàn script nếu áp dở; khảo sát bổ sung từng phần. [Hướng dẫn](14-demo-bon-nang-cap.md).

@@ -29,6 +29,7 @@ class AccountHttpIT {
         database = new Database(AppConfig.load().database().orElseThrow());
         assertTrue(database.read(h -> h.createQuery("SELECT DATABASE()").mapTo(String.class).one()).endsWith("_test"));
         new SchemaManager(database).migrate(); new SchemaManager(database).seed();
+        HttpTestTarget.verify(database,base);
         assertEquals(200, new Browser().get("/login").statusCode());
     }
     @AfterAll static void close() { if (database != null) database.close(); JdbcLifecycle.shutdown(); }

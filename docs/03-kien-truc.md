@@ -1,6 +1,19 @@
 # 03 — Kiến trúc và cấu trúc mục tiêu
 
+**Giỏ hàng AJAX 05/10/2026:** `cart-ajax.js → CartCheckoutServlet → CartService.changeAndView → CartDao/CatalogDao → JDBI/MySQL`. Gửi POST update/remove có CSRF, actor từ session; Service kiểm ACTIVE/chủ giỏ/tồn kho và trả snapshot trong cùng transaction ghi. CartResponse chỉ trả ID dạng chuỗi, số lượng, giá/thành tiền/tổng và điều kiện thao tác; không serialize toàn bộ bảng sản phẩm. GET `/cart` với Accept `application/json` đọc lại giỏ của session khi mất phản hồi; JS tuần tự hóa thao tác và khóa checkout nếu chưa đồng bộ. Request HTML giữ form/redirect cũ. [Báo cáo và demo](reports/Gio-hang-AJAX.md).
+
+**Gợi ý tìm kiếm 05/10/2026:** `search-suggestions.js → SearchSuggestionsServlet (/products/suggestions) → ProductService.suggestions → CatalogDao.suggestions → MySQL`. Callback Database.read đóng Handle, bind từ khóa; ProductSuggestion DTO allowlist công khai. JSON UTF-8/no-store, client debounce/cancel phản hồi cũ, DOM textContent và context path; form tìm kiếm HTML là fallback. [Báo cáo](reports/Tim-kiem-goi-y.md).
+
+**Chat 05/10/2026:** `ChatServlet → ShopServices.chat → ChatService → ChatDao/JDBI → MySQL`, Model ChatMessage chỉ chứa dữ liệu hiển thị. JSP inbox + messages.js polling 4 giây; POST start/send/read có CSRF, GET API kiểm participant. Service không cho Admin bypass quyền. Chi tiết [13 — Chat](13-demo-chat-mua-ban.md).
+
+**Bổ sung 05/10/2026:** `controller/payment/VnpayServlet → VnpayService → VnpayDao/JDBI`. Gateway HTTP ngoài transaction; ký qua VnpayProtocol, cấu hình VnpayConfig backend. Exact GET `/payments/vnpay/ipn` miễn session/CSRF; create/query POST và return/result GET vẫn bảo vệ. [Các endpoint/config](12-vnpay-sandbox.md).
+
+
 ## Luồng xử lý
+
+**M7/M8:** ReviewServlet và ComplaintServlet dùng ShopServices.reviews/complaints. ReviewService kiểm buyer/COMPLETED/dòng đơn, ReviewDao bind và UNIQUE ngăn trùng. ComplaintService khóa actor → order → complaint để đồng bộ COMPLETE; ComplaintDao ghi hồ sơ/messages/history cùng Handle. MediaServlet tải evidence qua ComplaintService kiểm buyer/Admin rồi MediaDao kiểm asset/purpose/hồ sơ; ImageStorage giữ file ngoài WAR. JSP snapshot-items dùng chung để đối chiếu thông tin lúc đặt, không đọc dữ liệu tin hiện tại.
+
+**Triển khai M3–M6:** `ProductServlet` phục vụ catalog và seller/admin products; `CartCheckoutServlet` phục vụ `/cart`, `/checkout`; `OrdersServlet` phục vụ buyer/seller/admin orders; `MediaServlet` tải ảnh theo quyền. `ShopServices` được `ApplicationListener` khởi tạo cùng Database. `ProductService`, `CartService`, `OrderService` dùng các DAO nhỏ nhận Handle của callback, cùng transaction; không phải mỗi DAO mở pool riêng. Views dùng Map/DTO chỉ để hiển thị, không truy vấn SQL. Upload qua `ImageStorage`, vị trí lấy từ AppConfig ngoài WAR.
 
 ```mermaid
 flowchart LR
@@ -115,3 +128,7 @@ Thông báo lỗi hiển thị tiếng Việt, không in stacktrace/SQL ra brows
 | Khiếu nại/bằng chứng | Buyer của order | Không truy cập bằng chứng; xem cờ có khiếu nại trên đơn mình | Tất cả |
 
 DAO có truy vấn theo `id AND buyer_id/seller_id` khi phù hợp; Service tiếp tục kiểm tra luật trạng thái. ID liên quan từ browser (product, order_item, complaint) phải được tải và đối chiếu quan hệ, không chỉ kiểm tra role. Luật này áp dụng cả đường tải ảnh và request trực tiếp tự sửa ID.
+
+## Routes cho bốn nâng cấp (05/10/2026)
+
+Giữ các Servlet và Service hiện có. CompareServlet bổ sung GET `/compare?ids=ID1,ID2[,ID3]` và `/compare/items?ids=` JSON public DTO allowlist; HTML kiểm tối thiểu 2/cùng danh mục, JSON dùng cho thanh chọn có thể 1 tin. Không serialize p.*. ReviewServlet nhận multipart với `@MultipartConfig`: 5 MB/file, 16 MB/request; controller dọn file chưa commit. MediaServlet thêm `/media/review-image?reviewId=&asset=` do ReviewService kiểm review VISIBLE/đơn COMPLETED và product public; không dùng quyền ảnh complaint. ProductForm có ConditionForm tùy chọn; constructor cũ giữ tương thích Service/test, caller không gửi declaration thì giữ dữ liệu khi edit. Service sở hữu transaction, DAO bind text/code/IDs/flags, OrderDao snapshot trong transaction checkout có sẵn. JS/CSS local upgrades bổ sung preview/modal/compare, không thêm thư viện.

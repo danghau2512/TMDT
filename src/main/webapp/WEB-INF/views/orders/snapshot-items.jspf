@@ -1,0 +1,23 @@
+<%@ page pageEncoding="UTF-8" %>
+<h2>Sản phẩm tại thời điểm đặt hàng</h2>
+<c:forEach items="${items}" var="item"><article class="snapshot">
+    <div class="thumbnail-row"><c:set var="hasImage" value="false" />
+        <c:forEach items="${images}" var="pic"><c:if test="${pic.order_item_id == item.id}"><c:set var="hasImage" value="true" />
+            <div><img class="thumbnail" src="<c:url value='/media/order-image'><c:param name='asset' value='${pic.asset_id}' /><c:param name='orderId' value='${order.id}' /></c:url>" alt="<c:out value='${pic.alt_text_snapshot}' />"><c:if test="${pic.is_defect_snapshot}"><small>Ảnh khuyết điểm</small></c:if></div>
+        </c:if></c:forEach>
+        <c:if test="${not hasImage}"><img class="thumbnail" src="<c:url value='/assets/images/product-placeholder.svg' />" alt="Ảnh mặc định"></c:if>
+    </div>
+    <h3><c:out value="${item.product_name_snapshot}" /></h3>
+    <p><c:out value="${item.category_name_snapshot}" /> · ${labels[item.condition_snapshot]}</p>
+    <p><fmt:formatNumber value="${item.unit_price}" maxFractionDigits="0" /> đ × ${item.quantity} = <strong><fmt:formatNumber value="${item.line_total}" maxFractionDigits="0" /> đ</strong></p>
+    <details><summary>Tình trạng chi tiết khi đặt hàng</summary><dl class="condition-grid"><div class="condition-value"><dt>Ngoại hình</dt><dd><c:out value="${conditionLabels[item.appearance_snapshot]}" default="Chưa cung cấp" /></dd></div><div class="condition-value"><dt>Hoạt động</dt><dd><c:out value="${conditionLabels[item.operation_snapshot]}" default="Chưa cung cấp" /></dd></div><div class="condition-value"><dt>Sửa chữa</dt><dd><c:out value="${conditionLabels[item.repair_snapshot]}" default="Chưa cung cấp" /></dd></div></dl><p>Lỗi đã biết: <c:out value="${item.known_defects_snapshot}" default="Chưa cung cấp" /></p><p>Sửa chữa / linh kiện: <c:out value="${item.repair_details_snapshot}" default="Chưa cung cấp" /></p><p>Phụ kiện: <c:out value="${item.accessories_snapshot}" default="Chưa cung cấp" /></p><p class="condition-note">Thông tin do người bán khai báo tại lúc đặt hàng.</p></details>
+    <details><summary>Mô tả khi đặt hàng</summary><p class="preserve"><c:out value="${item.description_snapshot}" /></p></details>
+    <c:if test="${orderView == 'buyer' and order.status == 'COMPLETED'}">
+        <c:set var="submittedReview" value="${reviewsByItem[item.id.toString()]}" />
+        <c:choose><c:when test="${not empty submittedReview}">
+            <div class="review-card"><strong>Đánh giá đã gửi: ${submittedReview.product_rating}/5 sao</strong><p class="preserve"><c:out value="${submittedReview.comment}" /></p><small><c:out value="${submittedReview.created_at}" /></small></div>
+        </c:when><c:otherwise>
+            <p><a class="button" href="<c:url value='/buyer/reviews/new'><c:param name='orderId' value='${order.id}' /><c:param name='itemId' value='${item.id}' /></c:url>">Đánh giá</a></p>
+        </c:otherwise></c:choose>
+    </c:if>
+</article></c:forEach>

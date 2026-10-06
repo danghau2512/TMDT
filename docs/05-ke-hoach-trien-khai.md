@@ -1,5 +1,10 @@
 # 05 — Kế hoạch triển khai và tiêu chí hoàn thành
 
+**Mở rộng chat được yêu cầu 05/10/2026:** hoàn thành UI/Servlet/Service/DAO/MySQL, V003, CSRF/ownership/read cursor, polling và hướng dẫn demo. Kiểm tra: 28 unit, 3 ChatIT, 1 ChatHttpIT và hai phiên Chrome thật 1440/390px trên schema test riêng. V003 đã áp vào standalone c2c_demo sau backup, đối chiếu 23 bảng cũ không đổi. Bước còn lại ở máy người dùng: rebuild artifact/restart Tomcat IntelliJ; chưa chạy chat trên dữ liệu ứng dụng. [Báo cáo](reports/Chat-mua-ban.md).
+
+**Tiến độ mở rộng 05/10/2026:** triển khai checkout COD/VNPAY Sandbox, attempt theo order, IPN/Return/querydr, retry và refund pending; V002 đã kiểm tra trên MySQL riêng và áp lên c2c_demo sau backup. Đã xác nhận thật một success và một hủy qua querydr Sandbox; IPN public chưa kiểm. Theo dõi kiểm tra gateway/IPN thực tế trong [báo cáo VNPAY](reports/VNPAY-sandbox.md); kịch bản [demo 12](12-vnpay-sandbox.md). Không chuyển sang production/refund API.
+
+
 Các mốc thực hiện **ở những lượt tiếp theo** theo yêu cầu người dùng; không lập trình toàn bộ ngay trong lượt thiết kế. Mỗi mốc phải đi xuyên suốt giao diện, Servlet, Service, DAO và schema liên quan. M1 là ngoại lệ hạ tầng: có trang kiểm tra tối thiểu thay cho tính năng thương mại.
 
 ## Điều kiện bắt đầu
@@ -31,21 +36,27 @@ Các mốc thực hiện **ở những lượt tiếp theo** theo yêu cầu ng�
 
 ## M3 — Đăng bán, quản lý và kiểm duyệt
 
-**Thực hiện:** màn hình seller list/create/edit/hide/stock và admin list/create/edit/hide/approve/reject/feature; ProductServlet → ProductService → DAO products/images/moderation/stock/assets/audit. Upload ngoài webroot, tin mới chờ duyệt, cập nhật kho dưới khóa, phiên bản form.
+**Tiến độ 04/10/2026:** đã có UI/Servlet/Service/DAO tạo, sửa, ẩn, cập nhật kho, ảnh và admin duyệt/từ chối có lý do/audit. Tin sửa nội dung chờ duyệt lại. Theo yêu cầu lượt này, thiếu ảnh dùng ảnh mặc định; không triển khai gắn “nổi bật”. Xem [báo cáo M3–M6](reports/M3-M6-mua-ban.md).
 
-**Hoàn thành khi:** seller tạo đủ tên/danh mục/giá/mô tả/condition/quantity/ảnh; chỉ quản lý tin mình; admin tạo thay seller ACTIVE và kiểm duyệt; sửa nội dung trả lại PENDING; tin ẩn không công khai. Mark “đã bán” làm khả dụng 0, không tạo flag lệch kho; điều chỉnh stock có nhật ký. Tin không có ảnh/giá không hợp lệ bị chặn; lỗi upload không để DB trỏ file thiếu. Seller không tự gửi APPROVED.
+**Thực hiện:** màn hình seller list/create/edit/hide/stock và admin list/create/edit/hide/approve/reject; ProductServlet → ProductService → DAO products/images/moderation/stock/assets/audit. Upload ngoài webroot, tin mới chờ duyệt, cập nhật kho dưới khóa, phiên bản form.
+
+**Hoàn thành khi:** seller tạo đủ tên/danh mục/giá/mô tả/condition/quantity, ảnh tùy chọn; chỉ quản lý tin mình; admin tạo thay seller ACTIVE và kiểm duyệt; sửa nội dung trả lại PENDING; tin ẩn không công khai. Mark “đã bán” làm khả dụng 0, không tạo flag lệch kho; điều chỉnh stock có nhật ký. Giá không hợp lệ bị chặn; ảnh thiếu dùng ảnh mặc định, file ảnh không hợp lệ bị từ chối. Seller không tự gửi APPROVED.
 
 **Kiểm tra:** user B sửa ID tin A bị chặn; file giả ảnh/traversal/quá cỡ bị từ chối; edit form cũ không ghi đè; admin can thiệp có audit/reason. Kiểm duyệt và history nguyên tử.
 
 ## M4 — Trang chủ, danh mục, tìm kiếm và chi tiết
 
-**Thực hiện:** JSP/JSTL + Bootstrap cơ bản; catalog Servlet/Service/DAO; category mới/nổi bật, filter keyword/category/min-max/condition, sort và phân trang; chi tiết ảnh/thông tin/contact công khai.
+**Tiến độ 04/10/2026:** đã có trang chủ mua bán, danh mục, từ khóa/khoảng giá/tình trạng, phân trang 12 tin và chi tiết/contact công khai. Có giao diện rỗng/hết hàng; chỉ PUBLIC/APPROVED của seller/category ACTIVE. Chưa có mục nổi bật hoặc lựa chọn sắp xếp, không nằm trong yêu cầu lượt demo này.
 
-**Hoàn thành khi:** trang chỉ công khai tin PUBLIC/APPROVED và seller/category ACTIVE; sản phẩm mới/nổi bật theo quy tắc 02; lọc kết hợp đúng, không thấy tin bị ẩn/chưa duyệt; giá âm/min > max báo lỗi; trang rỗng/không tồn tại có thông báo. Tin hết hàng hiện nhãn và không mua được. Contact công khai không lộ email đăng nhập/address.
+**Thực hiện:** JSP/JSTL + Bootstrap cơ bản; catalog Servlet/Service/DAO; danh mục và tin mới, filter keyword/category/min-max/condition và phân trang; chi tiết ảnh/thông tin/contact công khai.
+
+**Hoàn thành khi:** trang chỉ công khai tin PUBLIC/APPROVED và seller/category ACTIVE; sản phẩm mới sắp theo thời gian; lọc kết hợp đúng, không thấy tin bị ẩn/chưa duyệt; giá âm/min > max báo lỗi; trang rỗng/không tồn tại có thông báo. Tin hết hàng hiện nhãn và không mua được. Contact công khai không lộ email đăng nhập/address.
 
 **Kiểm tra:** các tổ hợp filter, phân trang và HTTP bằng context `/demo` hoặc `/demo_war_exploded`; truy vấn keyword chứa dấu nháy không gây SQL injection; XSS title/description được escape, giao diện dùng được trên mobile cơ bản.
 
 ## M5 — Giỏ hàng và tạo đơn an toàn
+
+**Tiến độ 04/10/2026:** đã có thêm/sửa/xóa giỏ, xem lại giá, checkout, nhóm theo seller, snapshot và chống gửi lặp. Đã chạy checkout hai seller, cạnh tranh tồn cuối bằng hai transaction, lỗi cưỡng bức payment của seller thứ hai để chứng minh rollback. Ghi chú nhận hàng nằm ở history khởi tạo; không cần migration.
 
 **Thực hiện:** cart/checkout JSP, Servlet/Service/DAO, cart/items/batches/orders/items/images/payments/history/stock. Trang xem lại giá và nhận hàng; atomic split theo seller, snapshot, key chống lặp, trừ khả dụng và payment ban đầu ngay lúc tạo. Dùng dữ liệu test để xem trang kết quả/danh sách đơn ban đầu.
 
@@ -57,7 +68,9 @@ Các mốc thực hiện **ở những lượt tiếp theo** theo yêu cầu ng�
 
 ## M6 — Xử lý đơn, thanh toán và hoàn kho
 
-**Thực hiện:** buyer/seller/admin order list/detail, timeline, status actions; seller/admin xác nhận bank mô phỏng; buyer hủy/receive; Service transaction đồng bộ order/payment/stock/history/audit. Có form lý do can thiệp và nhãn mô phỏng.
+**Tiến độ 04/10/2026:** đã có danh sách/chi tiết/nhật ký/thao tác buyer/seller/admin, chuyển khoản mô phỏng qua nút PAY và COD ghi PAID khi DELIVERED. Đã kiểm hoàn thành, hủy paid/refund và COD/void, hủy/PAY/checkout lặp. Buyer được bấm PAY theo yêu cầu demo mới, Service quyết định trạng thái. Chưa stress toàn bộ cặp thao tác hủy/giao đồng thời; M7/M8 vẫn chưa triển khai.
+
+**Thực hiện:** buyer/seller/admin order list/detail, timeline, status actions; buyer/seller/admin thanh toán bank mô phỏng đúng đơn; buyer hủy/receive; Service transaction đồng bộ order/payment/stock/history/audit. Có form lý do can thiệp và nhãn mô phỏng.
 
 **Hoàn thành khi:** toàn bộ chuyển ở 02 đúng vai trò/điều kiện; buyer chỉ thấy đơn mua, seller chỉ đơn bán; không SHIPPED trước CONFIRMED; bank chưa PAID không giao; COD được ghi PAID cùng DELIVERED. Chỉ buyer từ DELIVERED xác nhận COMPLETED; hủy trước giao hoàn kho/payment đúng, gửi hủy hai lần không hoàn hai lần. Từ SHIPPED không hủy trực tiếp. Admin không nhảy state tùy ý.
 
@@ -65,21 +78,27 @@ Các mốc thực hiện **ở những lượt tiếp theo** theo yêu cầu ng�
 
 ## M7 — Đánh giá theo đơn
 
-**Thực hiện:** form review ở chi tiết đơn COMPLETED, ProductDetail/Seller rating display; ReviewServlet/Service/DAO/reviews; nhãn “Đã mua qua hệ thống”; admin ẩn nội dung không phù hợp có audit.
+**Tiến độ 04/10/2026:** đã triển khai form số sao/nhận xét từ dòng đơn COMPLETED, buyer ownership, kiểm trùng + UNIQUE; hiển thị nội dung đã gửi và trung bình/list review VISIBLE trên chi tiết sản phẩm với nhãn xác thực. Theo phạm vi mới: một điểm chung, chưa có UI điểm seller riêng hay admin ẩn/sửa/xóa/phản hồi review. Xem [báo cáo M7–M8](reports/M7-M8-danh-gia-khieu-nai.md).
 
-**Hoàn thành khi:** buyer đúng order/item được đăng sao sản phẩm/seller 1–5 một lần; chưa nhận/chưa COMPLETED bị chặn; seller/khách/admin không tạo thay buyer. Product/seller trung bình và số review chỉ tính VISIBLE hợp lệ. Nội dung review được escape, duplicate hai tab chỉ có một row.
+**Thực hiện:** form review ở chi tiết đơn COMPLETED, ProductDetail rating display; ReviewServlet/Service/DAO/reviews; nhãn “Đã mua qua hệ thống”. Các mở rộng điểm seller riêng/ẩn review ngoài phạm vi lượt hiện tại.
+
+**Hoàn thành khi:** buyer đúng order/item được đăng số sao chung 1–5 một lần; chưa COMPLETED bị chặn; seller/khách/admin không tạo thay buyer. Trung bình sản phẩm và số review chỉ tính VISIBLE hợp lệ. Nội dung review được escape, gửi lại không tạo row mới.
 
 **Kiểm tra:** fake order_id/item_id/buyer_id, duplicate submit và DB unique; review đơn cũ vẫn gắn đúng snapshot sau đổi tin/ẩn tin. Không gắn nhãn xác thực dựa trên form client.
 
 ## M8 — Khiếu nại và bằng chứng
 
+**Tiến độ 04/10/2026:** đã có buyer tạo/list/detail/bổ sung, admin filter/detail/respond/process/resolve/reopen, snapshot/timelines và evidence riêng tư. Một hồ sơ/order, duplicate dẫn về hồ sơ cũ; đóng/mở không đổi order/payment/kho. Đã kiểm guard complete và cuộc đua create/complete trên MySQL riêng; giữ COMPLETED khi khiếu nại mở sau đó. Không cần migration mới. [Demo thêm 2–3 phút](10-demo-danh-gia-khieu-nai.md).
+
 **Thực hiện:** buyer tạo/xem/bổ sung, admin queue/detail/timeline/messages/process/resolve/reopen; ComplaintServlet/Service/DAO, storage và bảng liên quan; view đối chiếu order/snapshot/history/payment/evidence. Guard đơn có complaint mở không COMPLETED.
 
-**Hoàn thành khi:** buyer mở được hồ sơ PENDING/SHIPPED/COMPLETED/CANCELLED của mình; item phải đúng đơn; một hồ sơ/order, nhiều bổ sung; tiến độ RECEIVED/PROCESSING/RESOLVED và phản hồi/kết luận được lưu. Mở lại giữ kết quả trước. Người ngoài/seller không đọc ảnh evidence qua ID trực tiếp. Không tự sửa kho/tiền khi đổi status complaint; resolution ORDER_CANCELLED dùng hủy hợp lệ cùng transaction.
+**Hoàn thành khi:** buyer mở được hồ sơ ở mọi trạng thái đơn của mình; một hồ sơ/order phản ánh cả đơn, nhiều bổ sung; tiến độ RECEIVED/PROCESSING/RESOLVED và phản hồi/kết luận được lưu. Mở lại giữ kết quả trước. Người ngoài/seller không đọc ảnh evidence qua ID trực tiếp. Không tự sửa kho/tiền khi đổi status complaint; ORDER_CANCELLED chỉ ghi nhận đơn đã hủy hợp lệ qua luồng đơn hàng.
 
 **Kiểm tra:** đua complaint create và buyer receive dưới khóa order; upload hỏng/rollback; admin kết luận thiếu phản hồi/lý do bị chặn; mở lại sau RESOLVED; cập nhật tinh chỉnh tin không đổi evidence/snapshot. Không có hoàn tiền thật.
 
 ## M9 — Tích hợp, hướng dẫn và demo
+
+**Tiến độ giao diện 04/10/2026:** đã triển khai shell marketplace, home/catalog/detail, form tài khoản/seller, cart/checkout/receipt, đơn/review/complaint và bảng/sidebar Admin. Đã chụp/xem ảnh Chrome thật ở 1440/390px và chạy luồng form trên schema test riêng; xem [báo cáo UI](reports/UI-hoan-thien-giao-dien.md) và [checklist 11](11-checklist-giao-dien.md). Không sửa schema/dữ liệu ứng dụng. Phần giao diện đã bàn giao; các tiêu chí rehearsal/migration/toàn bộ M9 bên dưới không được xem là hoàn thành chỉ bởi lượt làm UI.
 
 **Thực hiện:** chạy toàn hành trình với dữ liệu giả gồm admin, ít nhất hai seller, hai buyer; gom fix, README run/config/demo, seed không phá dữ liệu, ảnh/timeline/bằng chứng để trình bày. Hoàn thiện trang lỗi, trạng thái rỗng, mobile cơ bản.
 
@@ -109,3 +128,15 @@ Mỗi báo cáo trong `docs/reports/` (tạo khi triển khai) và trả lời c
 | Giải thích để bảo vệ đồ án | HTTP đi qua Servlet → Service → DAO → MySQL; transaction/quyền/snapshot giải quyết vấn đề gì trong use case cụ thể |
 
 Không ước lượng ngày hoàn thành khi chưa có lịch nhóm/điều kiện DB. Các mốc theo phụ thuộc, có thể chia nhỏ một mốc theo use case nhưng mỗi phần vẫn cần chạy được xuyên suốt.
+
+## Mở rộng trải nghiệm đã triển khai — 05/10/2026
+
+Bốn nâng cấp đã có UI → Servlet → Service → DAO → MySQL: trung tâm khiếu nại với thống kê, tìm mã đơn, tiến độ và lịch sử người thực hiện; đánh giá với 0–3 ảnh, phân bố sao, lọc và phân trang; khai báo hàng cũ, ảnh khuyết điểm và snapshot bất biến; so sánh 2–3 sản phẩm công khai cùng danh mục với cart/chat. V004 bổ sung cấu trúc, c2c_demo đã backup và áp một lần; dữ liệu cũ giữ nguyên, không ghi demo.
+
+Đã chạy verify: 28 unit/WAR, UpgradesIT: 3 PASS trên MySQL/InnoDB cổng 13316, schema c2c_upgrades_test, FeedbackHttpIT: 1 PASS trên Tomcat 18080 có guard cùng DB; Chrome thật, 3 contexts, 7 nhóm luồng PASS và xem PNG 1366/390. Chưa kiểm tải hoặc exhaustive, chưa tự redeploy Tomcat IDE 8080; người dùng rebuild artifact rồi Stop/Run. Không kiểm VNPAY mới trong lượt này. Xem [demo](14-demo-bon-nang-cap.md) và [báo cáo](reports/Bon-nang-cap-trai-nghiem.md).
+
+## Nhận diện TraoTay và tiếng Việt — 05/10/2026
+
+Đã cập nhật logo gốc/header/footer/auth/title, khẩu hiệu, typography local và bố cục nút mật khẩu/menu mobile. Giữ UTF-8 ở JSP/Filter/JSON/DefaultServlet, thêm default request/response encoding và đổi version asset để nhận bản mới. Thông báo mạng lỗi chat nay bằng tiếng Việt; không đổi nghiệp vụ hoặc database.
+
+Build cuối 28 unit PASS/WAR; Tomcat 10.1.48 + Chrome thật 1366/390 trên schema c2c_upgrades_test riêng có backup và guard. Hành trình đầu 46 lượt mở trang, sau chỉnh menu kiểm lại shell cuối/giỏ có dữ liệu/modal/UTF-8 và chụp auth sau tương tác. Đã xem ảnh đại diện, không báo exhaustive hay kiểm VNPAY. Đầu lượt 8080 trả UTF-8 đúng và Hiện/Ẩn đúng, chưa tái hiện lỗi ảnh cũ; chỉ đọc 8080, không dừng tiến trình IDE. Người dùng Rebuild artifact rồi Stop/Run Tomcat, Ctrl+F5. Xem [báo cáo, file và ảnh](reports/TraoTay-tieng-Viet.md).

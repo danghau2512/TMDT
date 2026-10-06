@@ -1,0 +1,2 @@
+<%@ page pageEncoding="UTF-8" %>
+<c:set var="feedbackLabels" value="${{'RECEIVED':'Đã tiếp nhận','PROCESSING':'Đang xử lý','RESOLVED':'Đã xử lý','NOT_AS_DESCRIBED':'Hàng không đúng mô tả','NOT_RECEIVED':'Chưa nhận được hàng','DAMAGED':'Hàng bị lỗi','PAYMENT':'Vấn đề thanh toán','OTHER':'Khác','SELLER_CONTACTED':'Đã liên hệ người bán','ORDER_CANCELLED':'Đơn đã được hủy','NO_ACTION':'Không phát sinh điều chỉnh','BUYER_MESSAGE':'Người mua bổ sung','ADMIN_RESPONSE':'Admin phản hồi','RESOLUTION':'Kết luận xử lý','REOPEN':'Mở lại hồ sơ'}}" />

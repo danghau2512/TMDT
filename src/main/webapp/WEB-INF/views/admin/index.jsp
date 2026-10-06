@@ -1,10 +1,3 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quản trị — Chợ C2C</title><link rel="stylesheet" href="<c:url value='/assets/css/startup.css' />"></head>
-<body><main><%@ include file="../layouts/navigation.jspf" %>
-<section><p class="eyebrow">Khu vực quản trị</p><h1>Chào Admin</h1>
-<p>Quyền quản trị đã được kiểm tra trên server. Các màn hình sản phẩm, đơn hàng và khiếu nại sẽ được triển khai ở những mốc tiếp theo.</p>
-<a href="<c:url value='/account/profile' />">Xem hồ sơ cá nhân</a>
-</section></main></body></html>
+<%@ page pageEncoding="UTF-8" %><%@ include file="../layouts/shop-start.jspf" %>
+<div class="page-heading"><div><p class="eyebrow">Không gian quản trị</p><h1>Quản lý nền tảng</h1><p class="muted">Kiểm duyệt tin đăng, theo dõi giao dịch và hỗ trợ cộng đồng.</p></div></div>
+<div class="admin-tiles"><section class="admin-tile"><svg class="icon" aria-hidden="true"><use href="#i-box" /></svg><h2>Kiểm duyệt sản phẩm</h2><p>Đối chiếu nội dung và ảnh trước khi tin đăng xuất hiện công khai.</p><div class="actions"><a href="<c:url value='/admin/products?status=PENDING' />">Tin chờ duyệt →</a><a href="<c:url value='/admin/products' />">Tất cả sản phẩm</a></div></section><section class="admin-tile"><svg class="icon" aria-hidden="true"><use href="#i-message" /></svg><h2>Hỗ trợ khiếu nại</h2><p>Xem minh chứng, snapshot đơn hàng và phản hồi người mua.</p><div class="actions"><a href="<c:url value='/admin/complaints?status=RECEIVED' />">Hồ sơ mới tiếp nhận →</a><a href="<c:url value='/admin/complaints' />">Tất cả khiếu nại</a></div></section><section class="admin-tile"><svg class="icon" aria-hidden="true"><use href="#i-cart" /></svg><h2>Theo dõi đơn hàng</h2><p>Tra cứu trạng thái giao dịch, thanh toán mô phỏng và lịch sử xử lý.</p><a href="<c:url value='/admin/orders' />">Quản lý đơn hàng →</a></section><section class="admin-tile"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg><h2>Xử lý có lý do, có lịch sử</h2><p>Các thao tác quản trị lưu người thực hiện và lý do. Khiếu nại không tự đổi thanh toán hoặc hoàn thành đơn.</p><a href="<c:url value='/account/profile' />">Hồ sơ cá nhân →</a></section></div><%@ include file="../layouts/shop-end.jspf" %>

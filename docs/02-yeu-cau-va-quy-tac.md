@@ -1,5 +1,12 @@
 # 02 — Yêu cầu và quy tắc nghiệp vụ
 
+**Tìm kiếm 05/10/2026:** header có gợi ý ảnh/tên/giá qua GET công khai, tối đa 8 tin PUBLIC/APPROVED của seller và category ACTIVE; click/Enter vào chi tiết. Từ khóa tối đa 100 ký tự, tìm tên/mô tả như catalog, không đưa dữ liệu riêng tư vào DTO. Tìm kiếm thường giữ nguyên; không migration. [Chi tiết](reports/Tim-kiem-goi-y.md).
+
+**Thay đổi phạm vi 05/10/2026:** theo yêu cầu mới, đã triển khai chat văn bản trước khi mua qua polling, độc lập đơn/khiếu nại. Không có role BUYER/SELLER cố định; buyer_id là người bắt đầu hỏi tin cụ thể. Chỉ hai người tham gia đọc/gửi, không quyền đọc chung cho Admin. Giới hạn 2.000 ký tự; không file, gọi điện, chatbot/email hoặc sửa/xóa tin. Chi tiết [quy tắc chat](13-demo-chat-mua-ban.md#quy-tắc-và-endpoint). Nội dung loại trừ “chat thời gian thực” trước đó được điều chỉnh chỉ cho chức năng này; vẫn chưa có WebSocket.
+
+**Quyết định mới 05/10/2026 — ưu tiên hơn phần thanh toán mô phỏng lịch sử bên dưới:** checkout COD/VNPAY_SANDBOX; chỉ giữ BANK_TRANSFER_SIMULATED cho đơn cũ. VNPAY xác nhận qua IPN hoặc querydr có chữ ký, Return chỉ đọc. Mỗi order một giao dịch, tiền từ snapshot tổng đơn. Hủy VNPAY đã thu hoặc thành công muộn sau hủy → REFUND_PENDING, chưa hoàn tiền gateway. Xem [luật chi tiết và demo](12-vnpay-sandbox.md).
+
+
 ## Phạm vi theo vai trò
 
 | Vai trò/ngữ cảnh | Chức năng cần có | Giới hạn quyền |
@@ -40,8 +47,8 @@ Những quyết định dưới đây **chưa được người dùng chốt**, 
 | Admin thêm sản phẩm | Phải chỉ định một seller ACTIVE; không tạo sản phẩm vô chủ. Seller của tin bất biến | Thay chủ cần nghiệp vụ riêng, ngoài MVP |
 | Ai ghi “đã giao” | Người bán/admin ghi mô phỏng giao hàng; người mua xác nhận để COMPLETED | Nhãn rõ không có xác nhận từ hãng vận chuyển |
 | Hủy khi đã giao/đã hoàn thành | Không hủy trực tiếp từ SHIPPED trở đi; gửi khiếu nại | Đổi/trả, hoàn kho sau giao, hoàn tiền thật nằm ngoài MVP |
-| Review sản phẩm/người bán | Một review/order_item có `product_rating`, `seller_rating` và một nhận xét | Không thêm review độc lập không gắn đơn; seller average tính từ seller_rating hợp lệ |
-| Chỉnh/sửa review | MVP đăng một lần, không sửa/xóa từ người mua; admin có thể ẩn nội dung không phù hợp và ghi lý do | Nếu cho sửa cần version/history, không làm mất nội dung ban đầu |
+| Review sản phẩm/người bán | M7 theo yêu cầu mới có một số sao chung cho giao dịch và nhận xét; lưu cùng giá trị vào `product_rating`, `seller_rating` bắt buộc của V001 | Một review/order_item, chỉ buyer của đơn COMPLETED. Hiển thị trung bình sản phẩm; chưa có điểm seller riêng trên UI |
+| Chỉnh/sửa review | M7 đăng một lần, không sửa/xóa hoặc phản hồi từ seller | Admin ẩn review là đề xuất cho lượt sau, chưa có UI/route trong lượt này |
 | Số khiếu nại/thời hạn | Một hồ sơ/order trong MVP, cho mở ở mọi trạng thái kể cả PENDING/CANCELLED/COMPLETED; không có hạn ngày | Hồ sơ đã xử lý được admin mở lại khi có bằng chứng mới, lịch sử được giữ |
 | Khiếu nại ảnh hưởng đơn | Không tự hủy/hoàn kho. Chặn COMPLETED trong khi hồ sơ RECEIVED/PROCESSING; vẫn có thể tiến hành giao nếu phù hợp | Người mua không phải xác nhận nhận để được khiếu nại; sau giải quyết có thể xác nhận |
 | Phản hồi người bán về khiếu nại | Admin phản hồi, người mua xem/bổ sung bằng chứng khi hồ sơ còn mở; chưa có thread trả lời từ seller | Seller chỉ biết cảnh báo đơn đang có khiếu nại, không được lấy bằng chứng riêng tư |
@@ -90,7 +97,7 @@ Mỗi đơn có một payment, amount bằng grand_total, VND, `is_simulated = t
 | --- | --- | --- |
 | Tạo COD | UNPAID | Service tạo cùng đơn |
 | Tạo chuyển khoản mô phỏng | PENDING_CONFIRMATION | Việc chọn phương thức chỉ ghi nhận chờ kiểm tra, không chứng minh đã trả tiền |
-| Xác nhận chuyển khoản mô phỏng | PENDING_CONFIRMATION → PAID | Seller của đơn/admin thao tác xác nhận, chỉ PENDING/CONFIRMED, ghi người/lý do; buyer không gửi `status=PAID` |
+| Xác nhận chuyển khoản mô phỏng | PENDING_CONFIRMATION → PAID | Buyer của đơn có nút “Thanh toán mô phỏng”; seller của đơn/admin cũng được xử lý theo quyền. Chỉ PENDING/CONFIRMED; Service quyết định PAID, ghi người/thời điểm/note; không nhận trạng thái tùy ý từ browser. Đây không phải bằng chứng chuyển tiền thật. |
 | COD đã giao | UNPAID → PAID | Service thực hiện cùng SHIPPED → DELIVERED, mô phỏng thu tiền |
 | Hủy khi chưa paid | UNPAID/PENDING_CONFIRMATION → VOIDED | Service hủy trước giao |
 | Hủy đơn đã paid | PAID → REFUND_SIMULATED | Service/admin ghi mô phỏng hoàn trả trong hủy hợp lệ; không hoàn tiền thật |
@@ -116,3 +123,29 @@ Người mua và admin được xem bằng chứng, buyer chỉ hồ sơ của m
 | Hàng độc bản | Giới hạn stock 0/1; thử đồng thời nhiều người mua cùng một tin |
 
 Không mặc định hỗ trợ hàng số/dịch vụ, đấu giá, chat thời gian thực, ví, voucher, đề xuất AI, giao vận thật hay hoàn tiền thật. Nếu yêu cầu mới xuất hiện, ghi thành thay đổi phạm vi có tác động thiết kế.
+
+## Quyết định triển khai demo M3–M6 (04/10/2026)
+
+- Theo yêu cầu lượt mua bán, tin có 0–5 ảnh; thiếu ảnh dùng SVG mặc định của ứng dụng. Ảnh upload chỉ JPEG/PNG, tối đa 5 MB/file và 20 megapixel; kiểm bytes, giải mã và encode lại. Không upload SVG. Ảnh lưu ngoài WAR, asset bất biến được giữ cho đơn cũ.
+- Buyer có nút PAY cho chuyển khoản mô phỏng. Server kiểm người tham gia đơn, trạng thái PENDING/CONFIRMED và phương thức; không nhận `status=PAID` từ client. Admin phải có lý do; history lưu actor và thời gian. COD chỉ thanh toán khi đã giao.
+- Ghi chú tùy chọn tối đa 1.000 ký tự lưu trong `order_status_history.reason` dòng khởi tạo để giữ nguyên snapshot nhận hàng mà không thêm cột. Trong UI chi tiết, ghi chú xuất hiện ở lịch sử đơn.
+- Checkout giới hạn 50 sản phẩm, mỗi loại 1–999; giá nguyên VND dương tối đa 999.999.999.999 đồng, kho chỉnh từ 0 đến 1.000.000. Phí giao hàng bằng 0 trong demo. Giỏ/giá/nội dung đổi sau xem lại thì phải xác nhận lại.
+- Bản demo cung cấp tin mới theo thời gian; “nổi bật”, sắp xếp tùy chọn, đánh giá và khiếu nại chưa có UI. Quy tắc M7/M8 phía trên là yêu cầu dự kiến, không phải tính năng đã triển khai.
+
+## Quyết định triển khai M7–M8 (04/10/2026)
+
+- Đánh giá có số sao chung 1–5, nhận xét bắt buộc 1–2.000 ký tự. Hai cột rating hiện có lưu cùng điểm để giữ schema; không thêm ID sản phẩm/seller dư vì suy ra từ order_item/order. Service khóa order, kiểm buyer và COMPLETED, kiểm mỗi item một lần; UNIQUE củng cố chống trùng.
+- Khiếu nại dùng một hồ sơ/order theo thiết kế sẵn, không chỉ một hồ sơ đang mở. Gửi lại dẫn tới hồ sơ cũ, kể cả RESOLVED; buyer bổ sung khi mở, Admin có thể mở lại. Form phản ánh cả đơn, title suy ra từ lý do; không chọn item hoặc PAYMENT trong form mới.
+- Nội dung khiếu nại 10–5.000 ký tự; bổ sung/phản hồi/kết quả 1–5.000. Mỗi lần 0–5 ảnh JPEG/PNG, 5 MB/ảnh, 20 megapixel; tối đa 20 ảnh/hồ sơ. Ảnh purpose COMPLAINT_EVIDENCE, chỉ buyer của hồ sơ/Admin đọc qua endpoint có complaintId + assetId.
+- Admin phải RECEIVED → PROCESSING → RESOLVED, có phản hồi và kết quả khi kết thúc. RESPOND không đổi status, REOPEN chuyển RESOLVED → PROCESSING và giữ kết luận cũ ở history/messages. Audit chỉ ghi action/status, nội dung riêng nằm trong hồ sơ.
+- Đóng/mở khiếu nại không tự đổi order/payment/kho. ORDER_CANCELLED chỉ ghi nhận đơn đã CANCELLED qua luồng hủy có sẵn. Tạo, xử lý và mở lại complaint khóa order trước complaint, đồng bộ guard COMPLETE ở OrderService cho RECEIVED/PROCESSING. Khiếu nại sau COMPLETED không đảo trạng thái đơn.
+- M7/M8 đã có UI/Servlet/Service/DAO và kiểm tra riêng; “nổi bật”, sort tùy chọn, UI điểm seller riêng, sửa/xóa/ẩn/phản hồi review vẫn chưa triển khai.
+
+## Bốn nâng cấp trải nghiệm — 05/10/2026
+
+- Khiếu nại giữ nguyên một hồ sơ/order, buyer/Admin quyền riêng và quy tắc trạng thái. Thẻ tổng quan theo phạm vi tài khoản; tìm mã đơn bind; progress là trạng thái hiện tại, timeline chỉ history thật với tên actor. Không đổi order/payment/stock.
+- Review 0–3 ảnh JPEG/PNG ≤5 MB, validate bytes/encode lại, text 1–2.000; vẫn buyer COMPLETED/once. VISIBLE hợp lệ mới tính summary/phân bố sao; lọc sao/ảnh với8/trang. Endpoint ảnh công khai kiểm cả review/order/product hiện công khai. Ảnh khiếu nại giữ quyền riêng.
+- Khai báo hàng cũ: ngoại hình LIKE_NEW/LIGHT_SCRATCHES/WORN/NOT_APPLICABLE; hoạt động NORMAL/FAULTY/NEEDS_REPAIR/NOT_APPLICABLE; sửa chữa NEVER/REPAIRED/UNKNOWN/NOT_APPLICABLE; lỗi/sửa chữa/phụ kiện ≤1.000 ký tự mỗi trường. Tùy chọn thiếu= NULL/“Chưa cung cấp”, không mặc định không lỗi. Chọn/đánh dấu ảnh khuyết điểm trong 0–5 ảnh hiện có. Thay khai báo/flag làm PENDING và tăng listing_version; snapshot mới lưu cả text/code/flag, dữ liệu cũ không backfill.
+- So sánh công khai, 2–3 tin cùng danh mục, không trùng, lưu localStorage chỉ ID. Server lấy dữ liệu hiện tại, không lộ thông tin tinẩn; có nút bỏ. Giá thấp nhất không phải chứng nhận chất lượng. Điểm giao dịch seller tổng hợp seller_rating từ review VISIBLE/COMPLETED của tin còn công khai; hệ thống hiện dùng chung một rating cho cả product/seller, chưa có thang seller độc lập.
+
+[Demo](14-demo-bon-nang-cap.md) · [Báo cáo](reports/Bon-nang-cap-trai-nghiem.md).

@@ -1,31 +1,9 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Nền tảng C2C — Nhóm 6</title>
-    <link rel="stylesheet" href="<c:url value='/assets/css/startup.css' />">
-</head>
-<body><main>
-    <%@ include file="layouts/navigation.jspf" %>
-    <p class="eyebrow">Đồ án Thương mại điện tử · Nhóm 6</p>
-    <h1>Nền tảng kết nối người mua – người bán</h1>
-    <p>Một tài khoản để cùng mua và bán. Giai đoạn M2 đã có đăng ký, đăng nhập và hồ sơ cá nhân.</p>
-    <c:if test="${param.notice == 'logged-out'}"><p class="notice" role="status">Bạn đã đăng xuất.</p></c:if>
-    <section><h2>Trạng thái ứng dụng</h2>
-        <c:choose>
-            <c:when test="${configurationValid}"><p class="ok">Servlet, JSP/JSTL và UTF-8 hoạt động.</p></c:when>
-            <c:otherwise><p>Cấu hình chưa hợp lệ. Kiểm tra file cục bộ và log Tomcat.</p></c:otherwise>
-        </c:choose>
-        <c:if test="${diagnosticsEnabled}">
-            <p><strong>JDBI:</strong> <c:out value="${databaseHealth.message}" /></p>
-            <a href="<c:url value='/health/db' />">Kiểm tra kết nối database</a>
-        </c:if>
-    </section>
-    <section><h2>Phạm vi hiện tại</h2>
-        <p>Bộ khung, SQL, kết nối database và chức năng tài khoản. Đăng bán, giỏ hàng, đơn hàng, đánh giá và khiếu nại sẽ được triển khai ở các mốc tiếp theo.</p>
-        <a href="<c:url value='/hello-servlet' />">Servlet mẫu hiện có</a>
-    </section>
-</main></body></html>
+<%@ page pageEncoding="UTF-8" %><%@ include file="layouts/shop-start.jspf" %>
+<c:if test="${param.notice == 'logged-out'}"><p class="notice" role="status">Bạn đã đăng xuất.</p></c:if>
+<section class="hero"><div><p class="eyebrow">Kết nối cộng đồng · Trao thêm giá trị</p><h1>Món đồ bạn cần.<br><em>Niềm vui mới mỗi ngày.</em></h1><p>TraoTay — Đồ cũ, giá trị mới. Khám phá những món đồ còn giá trị từ cộng đồng. Mua món bạn thích, bán món bạn không còn dùng.</p><div class="actions"><a class="button" href="<c:url value='/products' />">Khám phá ngay <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg></a><a class="button secondary" href="<c:url value='/seller/products/new' />">Đăng bán món đồ</a></div><p class="hero-caption"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg>Đánh giá theo giao dịch · Theo dõi đơn rõ ràng</p></div><img class="hero-art" src="<c:url value='/assets/images/community-hero.svg' />" alt="Minh họa trao vòng đời mới cho những món đồ"></section>
+<div class="section-heading"><div><p class="eyebrow">Bắt đầu khám phá</p><h2>Bạn đang tìm gì?</h2></div><a href="<c:url value='/categories' />">Tất cả danh mục →</a></div>
+<div class="category-links"><c:forEach var="category" items="${categories}"><c:url var="categoryUrl" value="/products"><c:param name="category" value="${category.id}" /></c:url><a class="category-chip" href="${categoryUrl}"><svg class="icon" aria-hidden="true"><use href="#i-box" /></svg><c:out value="${category.name}" /></a></c:forEach><c:if test="${empty categories}"><p class="muted">Danh mục sẽ xuất hiện khi được cập nhật.</p></c:if></div>
+<div class="section-heading"><div><p class="eyebrow">Từ cộng đồng người bán</p><h2>Sản phẩm mới đăng</h2></div><a href="<c:url value='/products' />">Xem tất cả →</a></div>
+<div class="home-products"><%@ include file="catalog/cards.jspf" %></div>
+<div class="trust-grid"><div class="trust-item"><svg class="icon" aria-hidden="true"><use href="#i-box" /></svg><div><h3>Theo dõi từng đơn hàng</h3><p>Biết đơn đã được xác nhận, đang giao hay đã hoàn thành.</p></div></div><div class="trust-item"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg><div><h3>Đánh giá sau giao dịch</h3><p>Nhận xét từ đúng người mua của đơn đã hoàn thành.</p></div></div><div class="trust-item"><svg class="icon" aria-hidden="true"><use href="#i-message" /></svg><div><h3>Hỗ trợ khi có vấn đề</h3><p>Gửi khiếu nại theo đơn, bổ sung minh chứng và theo dõi phản hồi.</p></div></div></div>
+<%@ include file="layouts/shop-end.jspf" %>

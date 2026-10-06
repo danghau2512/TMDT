@@ -1,10 +1,6 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Đăng ký — Chợ C2C</title><link rel="stylesheet" href="<c:url value='/assets/css/startup.css' />"></head>
-<body><main><%@ include file="../layouts/navigation.jspf" %>
-<section class="account-card"><p class="eyebrow">Một tài khoản · Cùng mua và bán</p><h1>Tạo tài khoản</h1>
+<%@ page pageEncoding="UTF-8" %>
+<%@ include file="../layouts/shop-start.jspf" %>
+<div class="auth-layout"><div class="auth-intro"><a class="auth-brand" href="<c:url value='/home' />"><img src="${appLogoUrl}" alt="TraoTay — Trang chủ" width="2172" height="724"></a><p class="auth-slogan"><c:out value="${appSlogan}" /></p><h1>Thêm kết nối.<br>Thêm giá trị.</h1><p class="muted">Một tài khoản để khám phá, đăng bán và theo dõi những giao dịch của bạn.</p><img src="<c:url value='/assets/images/community-hero.svg' />" alt="Minh họa cộng đồng mua bán"></div><section class="account-card"><p class="eyebrow">Một tài khoản · Cùng mua và bán</p><h1>Tạo tài khoản</h1>
 <p>Đăng ký bằng email. Số điện thoại là tùy chọn và được giữ riêng tư.</p>
 <c:if test="${not empty errors}"><p class="error" role="alert">Vui lòng kiểm tra các trường được đánh dấu.</p></c:if>
 <form method="post" action="<c:url value='/register' />" class="account-form">
@@ -22,4 +18,5 @@
 <span class="error"><c:out value="${errors.confirmation}" /></span>
 <button type="submit">Đăng ký</button>
 </form><p>Đã có tài khoản? <a href="<c:url value='/login' />">Đăng nhập</a></p>
-</section></main></body></html>
+</section></div>
+<%@ include file="../layouts/shop-end.jspf" %>
