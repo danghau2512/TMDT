@@ -24,6 +24,7 @@ class CommerceIT {
     @AfterAll static void close() { if(db!=null) db.close(); JdbcLifecycle.shutdown(); }
     @BeforeEach void emptyFixtureCarts() { for(var user:List.of(buyer,buyer2)) for(var p:carts.view(user).items()) carts.change(user,id(p,"id"),1,"REMOVE"); }
     static long product(CurrentUser owner,int stock) {
+        SellerTestProfiles.approve(db,owner);
         long id=products.save(owner,null,new ProductForm("Sản phẩm thử "+UUID.randomUUID(),510001,"Mô tả tiếng Việt",new BigDecimal("100000"),"USED",stock,"PUBLIC",owner.id(),0,0,""),List.of(),false);
         products.action(admin,id,"APPROVE",1,"Duyệt fixture",true); return id;
     }

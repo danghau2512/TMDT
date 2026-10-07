@@ -13,6 +13,7 @@ public final class CatalogDao {
     private static final String SELECT="""
         SELECT p.*,u.display_name seller_name,u.public_contact seller_contact,u.status seller_status,
         c.name category_name,c.status category_status,
+        EXISTS(SELECT 1 FROM seller_profiles sp WHERE sp.user_id=u.id AND sp.status='APPROVED') seller_verified,
         (SELECT asset_id FROM product_images WHERE product_id=p.id ORDER BY sort_order LIMIT 1) image_id,
         (SELECT reason FROM product_moderation_events WHERE product_id=p.id ORDER BY id DESC LIMIT 1) rejection_reason
         FROM products p JOIN users u ON u.id=p.seller_id JOIN categories c ON c.id=p.category_id

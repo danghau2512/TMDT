@@ -1,5 +1,7 @@
 # TraoTay — Đồ cũ, giá trị mới.
 
+**Xác minh người bán bằng QR (06/10/2026):** đã thay FPT.AI bằng ZXing cục bộ, upload đủ hai ảnh và tự điền sáu trường; không cần API key/mạng OCR. Giữ Admin đối chiếu/duyệt, quyền đăng tin và nhãn **Đã xác minh hồ sơ**. c2c_demo đã backup + áp V007, giữ hồ sơ/ảnh OCR cũ; **không chạy lại SQL/seed**. Build `.\mvnw.cmd -B verify`, Stop → Rebuild artifact → Run → Ctrl+F5. [Định dạng QR, cấu hình riêng tư và demo](docs/15-xac-minh-nguoi-ban.md), [file/kiểm tra thực tế](docs/reports/Xac-minh-nguoi-ban-QR.md).
+
 **Giỏ hàng AJAX (05/10/2026):** thay nút “Cập nhật” bằng −/+; nhập số lượng rồi Enter hoặc rời ô cũng tự lưu. Số lượng, thành tiền, tổng giỏ và xóa sản phẩm cập nhật không tải lại trang. Có thông báo lỗi/kết nối và nút kiểm tra lại nếu chưa xác nhận trạng thái server. Build `.\mvnw.cmd -B verify`, Rebuild artifact rồi Stop/Run Tomcat và Ctrl+F5; **không cần SQL**. [Các file, demo và kiểm tra thực tế](docs/reports/Gio-hang-AJAX.md).
 
 **Ảnh trang chủ (05/10/2026):** khu sản phẩm mới đăng dùng khung vuông lớn hơn, hiển thị trọn ảnh; desktop 3 cột/tablet 2/điện thoại 1. Ctrl+F5 sau cập nhật artifact, không cần SQL. [File và kiểm tra thực tế](docs/reports/Anh-san-pham-trang-chu.md).

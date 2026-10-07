@@ -99,11 +99,12 @@ public final class ProductService {
                         || (images.isEmpty() && !oldDefects.equals(declaration.defectAssets()));
                 }
                 long result;
-                if(old==null) { result=dao.insert(form,seller); dao.ledger(result,null,"INITIAL",0,form.stock(),actor.id(),"Số lượng khi đăng tin"); dao.event(result,actor.id(),null,"PENDING",1,"Tin mới chờ duyệt"); }
+                if(old==null) { verifiedSeller(h,seller);result=dao.insert(form,seller); dao.ledger(result,null,"INITIAL",0,form.stock(),actor.id(),"Số lượng khi đăng tin"); dao.event(result,actor.id(),null,"PENDING",1,"Tin mới chờ duyệt"); }
                 else {
                     result=product;
                     boolean changed=!title.equals(old.get("title")) || !description.equals(old.get("description")) || form.price().compareTo(money(old,"price"))!=0
                         || id(old,"category_id")!=form.categoryId() || !form.condition().equals(old.get("condition_code")) || !images.isEmpty() || declarationChanged;
+                    if(changed || "PUBLIC".equals(form.visibility())&&!"PUBLIC".equals(old.get("visibility")))verifiedSeller(h,seller);
                     dao.edit(result,form,changed);
                     if(changed) dao.event(result,actor.id(),text(old,"moderation_status"),"PENDING",id(old,"listing_version")+1,"Nội dung thay đổi, chờ duyệt lại");
                     int before=number(old,"stock_quantity"); if(before!=form.stock()) dao.ledger(result,null,"ADJUSTMENT",before,form.stock(),actor.id(),reason);
@@ -122,11 +123,13 @@ public final class ProductService {
             if("HIDE".equals(action)) dao.hide(product);
             else { require(adminRoute && actor.isAdmin() && Set.of("APPROVE","REJECT").contains(action),403,"Thao tác không được phép.");
                 require("PENDING".equals(p.get("moderation_status")),409,"Chỉ xử lý tin đang chờ duyệt.");
+                if("APPROVE".equals(action))verifiedSeller(h,id(p,"seller_id"));
                 String next="APPROVE".equals(action)?"APPROVED":"REJECTED"; dao.moderation(product,next); dao.event(product,actor.id(),text(p,"moderation_status"),next,version,note); }
             if(actor.isAdmin()) new AuditDao(h).product(actor.id(),product,"PRODUCT_"+action,note,audit(p),audit(dao.lock(product)));
             return null; }));
     }
     public static boolean publiclyVisible(Map<String,Object> p) { return "PUBLIC".equals(p.get("visibility")) && "APPROVED".equals(p.get("moderation_status")) && "ACTIVE".equals(p.get("seller_status")) && "ACTIVE".equals(p.get("category_status")); }
+    private static void verifiedSeller(org.jdbi.v3.core.Handle h,long seller) { require(new SellerVerificationDao(h).approved(seller,true),403,"Cần hồ sơ người bán đã duyệt trước khi tạo, gửi duyệt hoặc công khai tin. Mở mục Xác minh người bán để tiếp tục."); }
     private static void ownership(CurrentUser actor,Map<String,Object> p) { require(actor.isAdmin() || actor.id()==id(p,"seller_id"),404,"Không tìm thấy sản phẩm của bạn."); }
     private static String audit(Map<String,Object> p) { return "{\"price\":"+money(p,"price")+",\"stock\":"+number(p,"stock_quantity")+",\"version\":"+id(p,"listing_version")+",\"visibility\":\""+text(p,"visibility")+"\",\"moderation\":\""+text(p,"moderation_status")+"\"}"; }
     public Map<String,Object> image(CurrentUser supplied,long asset,Long order) {

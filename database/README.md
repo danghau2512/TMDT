@@ -71,3 +71,11 @@ SELECT COUNT(*) FROM stock_movements;
 ```
 
 Qua Flyway: 23 bảng; raw schema: 22. Seed mới: 5 user, 4 category, 4 product, 4 initial ledger, 4 moderation event; tin HIDDEN/PENDING. Xem README gốc cho credential demo; chưa có login UI.
+## Xác minh người bán — 06/10/2026
+
+V005 thêm seller_profiles/seller_verification_submissions; V006 siết CHECK cho lý do từ chối không NULL và trường hồ sơ đã gửi. Bản standalone ở `database/migrations`, Flyway ở `src/main/resources/db/migration`; không sửa migration cũ. c2c_demo đã backup và áp cả hai một lần, hiện 28 bảng nghiệp vụ; không SOURCE lại, không seed, không baseline. Máy khác khảo sát/backup rồi áp version còn thiếu theo [hướng dẫn 15](../docs/15-xac-minh-nguoi-ban.md#mysql-và-migration). Chưa xác minh người dùng cũ; dữ liệu demo/kiểm tra chỉ ở schema *_test. Giấy tờ thật không lưu trong seed/SQL/Git; xóa qua trang xác minh sau demo và quản lý riêng các backup chứa dữ liệu cá nhân.
+
+
+## V007 — đọc QR trên hai ảnh
+
+Đã backup và áp một lần vào c2c_demo standalone V006 ngày 06/10/2026, giữ toàn bộ cột/ảnh/hồ sơ cũ; không SOURCE lại. Thêm sáu trường/nguồn/baseline QR vào submissions, không thêm bảng; nguồn cũ OCR_LEGACY/MANUAL_LEGACY không biến thành QR. Chỉ CHECK đủ ảnh/trường cho hồ sơ mới. Script database/migrations/V007__seller_verification_qr.sql giống bản Flyway trong resources. Máy khác khảo sát/backup rồi áp version còn thiếu; không reset, không sửa migration đã áp hoặc auto baseline. [Hướng dẫn hiện tại](../docs/15-xac-minh-nguoi-ban.md#database-v007-giữ-hồ-sơ-ocr-cũ).

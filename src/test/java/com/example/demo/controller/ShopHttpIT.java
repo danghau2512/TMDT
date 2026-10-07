@@ -21,7 +21,7 @@ class ShopHttpIT {
         assertEquals("true",System.getenv("C2C_IT_ALLOWED")); var uri=URI.create(base);
         assertEquals("http",uri.getScheme()); assertTrue(Set.of("127.0.0.1","localhost").contains(uri.getHost()));
         db=new Database(AppConfig.load().database().orElseThrow()); assertTrue(db.read(h->h.createQuery("SELECT DATABASE()").mapTo(String.class).one()).endsWith("_test"));
-        assertNull(uri.getUserInfo());assertNull(uri.getQuery());assertNull(uri.getFragment()); HttpTestTarget.verify(db,base);
+        assertNull(uri.getUserInfo());assertNull(uri.getQuery());assertNull(uri.getFragment()); HttpTestTarget.verify(db,base);com.example.demo.service.SellerTestProfiles.approve(db,new com.example.demo.model.CurrentUser(500002,"Seller fixture","USER"));
     }
     @AfterAll static void close() { if(db!=null) db.close(); JdbcLifecycle.shutdown(); }
     static String field(String html,String name) { var m=Pattern.compile("name=\""+name+"\" value=\"([^\"]+)\"").matcher(html); assertTrue(m.find(),"Thiếu trường "+name); return m.group(1); }

@@ -66,7 +66,7 @@ public final class AccessFilter implements Filter {
         } catch (IllegalStateException exception) {
             if(request.getContentType()!=null && request.getContentType().startsWith("multipart/"))
                 AccountSupport.error(request,response,400,"Ảnh hoặc biểu mẫu vượt giới hạn. Tối đa "
-                    +(path.startsWith("/buyer/reviews/")?3:5)+" ảnh, mỗi ảnh 5 MB.");
+                    +(path.startsWith("/seller/verification/")?2:path.startsWith("/buyer/reviews/")?3:5)+" ảnh, mỗi ảnh 5 MB.");
             else throw exception;
         } catch (AccountUnavailableException exception) {
             request.getServletContext().log("Chức năng tài khoản không khả dụng [" + exception.reason()

@@ -16,9 +16,12 @@
         <junit.version>5.13.2</junit.version>
         <jdbi.version>3.55.0</jdbi.version>
         <flyway.version>11.8.2</flyway.version>
+        <zxing.version>3.5.4</zxing.version>
     </properties>
 
     <dependencies>
+        <dependency><groupId>com.google.zxing</groupId><artifactId>core</artifactId><version>${zxing.version}</version></dependency>
+        <dependency><groupId>com.google.zxing</groupId><artifactId>javase</artifactId><version>${zxing.version}</version></dependency>
         <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.13.2</version></dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>

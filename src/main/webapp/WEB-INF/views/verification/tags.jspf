@@ -1,0 +1,2 @@
+<%@ page pageEncoding="UTF-8" %>
+<c:set var="verificationLabels" value="${{'NOT_SUBMITTED':'Chưa xác minh','DRAFT':'Kiểm tra thông tin','PENDING':'Chờ duyệt','APPROVED':'Đã duyệt','REJECTED':'Bị từ chối','SUPERSEDED':'Đã gửi phiên bản mới','PURGED':'Đã xóa giấy tờ'}}" />

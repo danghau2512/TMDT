@@ -22,7 +22,7 @@ class FeedbackHttpIT {
         assertEquals("true",System.getenv("C2C_IT_ALLOWED"));var uri=URI.create(base);assertEquals("http",uri.getScheme());assertTrue(Set.of("127.0.0.1","localhost").contains(uri.getHost()));
         assertNull(uri.getUserInfo());assertNull(uri.getQuery());assertNull(uri.getFragment());
         var config=AppConfig.load();db=new Database(config.database().orElseThrow());assertTrue(db.read(h->h.createQuery("SELECT DATABASE()").mapTo(String.class).one()).endsWith("_test"));
-        HttpTestTarget.verify(db,base);ShopHttpIT.base=base;shop=new ShopServices(db,config.uploadRoot());
+        HttpTestTarget.verify(db,base);ShopHttpIT.base=base;shop=new ShopServices(db,config.uploadRoot());com.example.demo.service.SellerTestProfiles.approve(db,seller);
     }
     @AfterAll static void close() { if(db!=null)db.close();JdbcLifecycle.shutdown(); }
     static long checkout(long product) {

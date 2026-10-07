@@ -10,7 +10,8 @@ public final class ChatDao {
     private static final String INFO="""
         SELECT cc.*,p.title,p.visibility,p.moderation_status,p.seller_id current_seller_id,
           owner.status seller_status,cat.status category_status,
-          peer.display_name other_name,peer.status other_status,
+          peer.id other_id,peer.display_name other_name,peer.status other_status,
+          EXISTS(SELECT 1 FROM seller_profiles sp WHERE sp.user_id=cc.seller_id AND sp.status='APPROVED') seller_verified,
           (SELECT asset_id FROM product_images WHERE product_id=p.id ORDER BY sort_order LIMIT 1) image_id,
           (SELECT body FROM chat_messages WHERE conversation_id=cc.id ORDER BY id DESC LIMIT 1) last_body,
           (SELECT COUNT(*) FROM chat_messages m WHERE m.conversation_id=cc.id AND m.sender_id<>:actor

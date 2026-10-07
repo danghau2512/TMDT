@@ -1,5 +1,7 @@
 # 02 — Yêu cầu và quy tắc nghiệp vụ
 
+**Điều chỉnh mới 06/10/2026 — QR thay OCR:** theo yêu cầu người dùng, bỏ dịch vụ FPT.AI/API key và đọc QR cục bộ từ đủ hai ảnh. Hồ sơ mới thu thập sáu trường riêng tư, ngày DATE; server nhận dạng bảy trường pipe, bảo toàn dấu, không mở URL hoặc đoán format. Source QR/MANUAL do server, baseline để Admin thấy chỉnh sửa; QR mâu thuẫn phải tải lại. Giữ trạng thái/claim/duyệt/CSRF/ownership/quyền đăng tin, nhãn Đã xác minh hồ sơ. Legacy OCR/manual không chuyển thành QR, không mất ảnh/đơn/tin cũ. Không camera/face/chip/VNeID/AI training. [Quy tắc và demo](15-xac-minh-nguoi-ban.md).
+
 **Tìm kiếm 05/10/2026:** header có gợi ý ảnh/tên/giá qua GET công khai, tối đa 8 tin PUBLIC/APPROVED của seller và category ACTIVE; click/Enter vào chi tiết. Từ khóa tối đa 100 ký tự, tìm tên/mô tả như catalog, không đưa dữ liệu riêng tư vào DTO. Tìm kiếm thường giữ nguyên; không migration. [Chi tiết](reports/Tim-kiem-goi-y.md).
 
 **Thay đổi phạm vi 05/10/2026:** theo yêu cầu mới, đã triển khai chat văn bản trước khi mua qua polling, độc lập đơn/khiếu nại. Không có role BUYER/SELLER cố định; buyer_id là người bắt đầu hỏi tin cụ thể. Chỉ hai người tham gia đọc/gửi, không quyền đọc chung cho Admin. Giới hạn 2.000 ký tự; không file, gọi điện, chatbot/email hoặc sửa/xóa tin. Chi tiết [quy tắc chat](13-demo-chat-mua-ban.md#quy-tắc-và-endpoint). Nội dung loại trừ “chat thời gian thực” trước đó được điều chỉnh chỉ cho chức năng này; vẫn chưa có WebSocket.

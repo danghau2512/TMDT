@@ -80,6 +80,7 @@
     return added;
   }
   function metadata(c) {
+    const verification=root.querySelector('[data-chat-verification]');if(verification)verification.hidden=!c.sellerVerified;
     root.querySelector('[data-chat-product-title]').textContent = c.title;
     root.querySelector('[data-chat-product-image]').src = context + c.imagePath;
     root.querySelector('[data-chat-product-state]').textContent = c.available ? 'Đang được công khai' : 'Tin không còn công khai · Lịch sử vẫn được giữ';

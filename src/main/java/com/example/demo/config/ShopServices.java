@@ -2,12 +2,15 @@ package com.example.demo.config;
 
 import com.example.demo.service.*;
 import com.example.demo.storage.ImageStorage;
-public record ShopServices(ProductService products,CartService cart,OrderService orders,ImageStorage storage,ReviewService reviews,ComplaintService complaints,VnpayService payments,ChatService chat) {
+public record ShopServices(ProductService products,CartService cart,OrderService orders,ImageStorage storage,ReviewService reviews,ComplaintService complaints,VnpayService payments,ChatService chat,SellerVerificationService verification) {
     public static final String KEY=ShopServices.class.getName();
     public ShopServices(Database db,java.nio.file.Path uploadRoot) {
         this(db,uploadRoot,java.util.Optional.empty());
     }
     public ShopServices(Database db,java.nio.file.Path uploadRoot,java.util.Optional<VnpayConfig> vnpay) {
-        this(new ProductService(db,new ImageStorage(uploadRoot)),new CartService(db),new OrderService(db),new ImageStorage(uploadRoot),new ReviewService(db),new ComplaintService(db,new ImageStorage(uploadRoot)),new VnpayService(db,vnpay),new ChatService(db));
+        this(db,uploadRoot,vnpay,VerificationConfig.defaults(uploadRoot));
+    }
+    public ShopServices(Database db,java.nio.file.Path uploadRoot,java.util.Optional<VnpayConfig> vnpay,VerificationConfig verificationConfig) {
+        this(new ProductService(db,new ImageStorage(uploadRoot)),new CartService(db),new OrderService(db),new ImageStorage(uploadRoot),new ReviewService(db),new ComplaintService(db,new ImageStorage(uploadRoot)),new VnpayService(db,vnpay),new ChatService(db),new SellerVerificationService(db,verificationConfig));
     }
 }

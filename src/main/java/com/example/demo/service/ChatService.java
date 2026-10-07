@@ -61,7 +61,7 @@ public final class ChatService {
     private Map<String,Object> conversation(Map<String,Object> row){
         boolean visible=ProductService.publiclyVisible(row);var result=new HashMap<String,Object>();
         result.put("id",Long.toString(id(row,"id")));result.put("productId",Long.toString(id(row,"product_id")));
-        result.put("otherName",text(row,"other_name"));result.put("title",visible?text(row,"title"):text(row,"product_title_snapshot"));
+        result.put("otherName",text(row,"other_name"));result.put("sellerVerified",id(row,"other_id")==id(row,"seller_id")&&(Boolean.TRUE.equals(row.get("seller_verified"))||"1".equals(String.valueOf(row.get("seller_verified")))));result.put("title",visible?text(row,"title"):text(row,"product_title_snapshot"));
         result.put("imagePath",visible && row.get("image_id")!=null?"/media/product?asset="+row.get("image_id"):"/assets/images/product-placeholder.svg");
         result.put("productPath",visible?"/products/detail?id="+id(row,"product_id"):"");
         result.put("available",visible);result.put("canSend","ACTIVE".equals(row.get("other_status")));

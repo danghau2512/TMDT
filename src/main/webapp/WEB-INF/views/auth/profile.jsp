@@ -1,6 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ include file="../layouts/shop-start.jspf" %>
 <section class="account-card"><h1>Hồ sơ cá nhân</h1>
+<c:if test="${sellerVerified}"><span class="seller-approved" title="Giấy tờ trong hồ sơ đã được quản trị viên kiểm tra"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg>Đã xác minh hồ sơ</span></c:if><p><a href="<c:url value='/seller/verification' />">Xác minh hồ sơ người bán →</a></p>
 <p><a href="<c:url value='/buyer/orders' />">Đơn mua của tôi</a> · <a href="<c:url value='/buyer/complaints' />">Theo dõi khiếu nại</a></p>
 <p>Email đăng nhập: <strong><c:out value="${profile.email}" /></strong></p>
 <p>Email đăng nhập được giữ cố định. Bạn có thể cập nhật tên và thông tin liên hệ bên dưới.</p>

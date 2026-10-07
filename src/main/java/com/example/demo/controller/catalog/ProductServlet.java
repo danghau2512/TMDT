@@ -21,6 +21,7 @@ public final class ProductServlet extends HttpServlet {
         if(path.equals("/products") || path.equals("/categories")) { data(r,products.catalog(new CatalogFilter(value(r,"keyword"),number(r,"category",0),price(r,"min"),price(r,"max"),value(r,"condition"),integer(r,"page",1)))); r.setAttribute("page",integer(r,"page",1)); view(r,s,"catalog/list"); }
         else if(path.equals("/products/detail")) { data(r,products.detail(number(r,"id",0),SessionAuth.current(r),false,integer(r,"stars",0),"true".equals(value(r,"photos")),integer(r,"reviewPage",1))); view(r,s,"catalog/detail"); }
         else if(path.endsWith("/new") || path.endsWith("/edit")) {
+            if(path.equals("/seller/products/new")&&!services(getServletContext()).verification().approved(SessionAuth.current(r))) {redirect(r,s,"/seller/verification?notice=required");return;}
             data(r,products.managed(SessionAuth.current(r),path.startsWith("/admin/"),""));
             if(path.endsWith("/edit")) data(r,products.detail(number(r,"id",0),SessionAuth.current(r),true));
             view(r,s,"seller/product-form");
@@ -42,8 +43,9 @@ public final class ProductServlet extends HttpServlet {
         var images=new ArrayList<StoredImage>(); boolean committed=false;
         try {
             long id=number(r,"id",0);
+            if(id==0&&!admin&&!shop.verification().approved(SessionAuth.current(r)))throw new ShopException(403,"Cần hồ sơ người bán đã duyệt. Mở mục Xác minh người bán để tiếp tục đăng tin.");
             var form=new ProductForm(value(r,"title"),number(r,"categoryId",0),value(r,"description"),price(r,"price"),value(r,"condition"),integer(r,"stock",-1),value(r,"visibility"),number(r,"sellerId",0),number(r,"listingVersion",0),number(r,"stockVersion",0),value(r,"reason"),new ConditionForm(value(r,"appearance"),value(r,"operation"),value(r,"defects"),value(r,"repair"),value(r,"repairDetails"),value(r,"accessories"),longSet(r,"defectAsset"),indexSet(r)));
-            var parts=r.getParts().stream().filter(p->"photos".equals(p.getName()) && p.getSize()>0).toList();
+            var parts=(r.getContentType()!=null&&r.getContentType().startsWith("multipart/")?r.getParts():List.<Part>of()).stream().filter(p->"photos".equals(p.getName()) && p.getSize()>0).toList();
             if(parts.size()>5) throw new ShopException(400,"Tối đa 5 ảnh cho một tin.");
             for(var part:parts) images.add(shop.storage().save(part));
             shop.products().save(SessionAuth.current(r),id==0?null:id,form,images,admin); committed=true;

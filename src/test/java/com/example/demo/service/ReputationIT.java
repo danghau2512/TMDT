@@ -28,7 +28,7 @@ class ReputationIT {
     @AfterAll static void close() { if(db!=null)db.close();JdbcLifecycle.shutdown(); }
     static Fixture order() {
         for(var item:shop.cart().view(buyer).items()) shop.cart().change(buyer,id(item,"id"),1,"REMOVE");
-        long product=shop.products().save(seller,null,new ProductForm("Tin đánh giá "+UUID.randomUUID(),510001,"Mô tả gốc để đối chiếu",new BigDecimal("123000"),"USED",3,"PUBLIC",seller.id(),0,0,""),List.of(),false);
+        SellerTestProfiles.approve(db,seller);long product=shop.products().save(seller,null,new ProductForm("Tin đánh giá "+UUID.randomUUID(),510001,"Mô tả gốc để đối chiếu",new BigDecimal("123000"),"USED",3,"PUBLIC",seller.id(),0,0,""),List.of(),false);
         shop.products().action(admin,product,"APPROVE",1,"Duyệt fixture",true);shop.cart().change(buyer,product,1,"ADD");
         long batch=shop.orders().checkout(buyer,new CheckoutForm("Người nhận thử","0901234567","Địa chỉ thử tại Hà Nội","","COD",UUID.randomUUID().toString(),shop.cart().view(buyer).quote()));
         long order=id(shop.orders().receipt(buyer,batch).get(0),"id");long item=db.read(h->h.createQuery("SELECT id FROM order_items WHERE order_id=:id").bind("id",order).mapTo(Long.class).one());

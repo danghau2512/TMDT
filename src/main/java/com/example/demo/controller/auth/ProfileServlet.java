@@ -17,6 +17,7 @@ public final class ProfileServlet extends HttpServlet {
         request.setAttribute("displayName", profile.displayName());
         request.setAttribute("phone", profile.phone());
         request.setAttribute("publicContact", profile.publicContact());
+        request.setAttribute("sellerVerified",com.example.demo.controller.ShopWeb.services(getServletContext()).verification().approved(SessionAuth.current(request)));
         AccountSupport.view(request, response, "auth/profile");
     }
     @Override protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -30,6 +31,7 @@ public final class ProfileServlet extends HttpServlet {
             response.setStatus(400);
             request.setAttribute("errors", exception.errors());
             request.setAttribute("profile", service.profile(user));
+            request.setAttribute("sellerVerified",com.example.demo.controller.ShopWeb.services(getServletContext()).verification().approved(user));
             for (String field : new String[]{"displayName", "phone", "publicContact"}) request.setAttribute(field, request.getParameter(field));
             AccountSupport.view(request, response, "auth/profile");
         }

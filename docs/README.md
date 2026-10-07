@@ -1,5 +1,7 @@
 # Hồ sơ thiết kế website C2C — Nhóm 6
 
+**Xác minh người bán bằng QR (06/10/2026):** [hướng dẫn 15](15-xac-minh-nguoi-ban.md), [báo cáo/ảnh QR](reports/Xac-minh-nguoi-ban-QR.md). ZXing local đọc cả hai mặt/sáu trường, không còn FPT.AI/API key. V007 đã backup/áp một lần, giữ hồ sơ cũ với nguồn legacy; 28 bảng nghiệp vụ. QR không tự duyệt hoặc chứng minh chính chủ; Admin và kiểm duyệt tin giữ riêng.
+
 **Giỏ hàng AJAX (05/10/2026):** [nút −/+, đồng bộ tổng tiền và kiểm tra thực tế](reports/Gio-hang-AJAX.md). Tái sử dụng CartService/CartDao và CSRF; không thay schema hoặc checkout.
 
 **Ảnh sản phẩm trang chủ (05/10/2026):** [khung vuông/contain và responsive 3–2–1 cột](reports/Anh-san-pham-trang-chu.md), chỉ styling home, không thay ảnh upload/database.

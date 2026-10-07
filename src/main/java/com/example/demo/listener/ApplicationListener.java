@@ -18,9 +18,11 @@ public final class ApplicationListener implements ServletContextListener {
         boolean diagnostics = false;
         try {
             AppConfig config = AppConfig.load();
+            String deployedRoot=event.getServletContext().getRealPath("/");
+            if(deployedRoot!=null&&config.verificationConfig().root().startsWith(java.nio.file.Path.of(deployedRoot).toAbsolutePath().normalize()))throw new ConfigurationException("verification.root phải nằm ngoài thư mục WAR triển khai.");
             diagnostics = config.diagnosticsEnabled();
             database = config.database().map(Database::new);
-            database.ifPresent(db -> event.getServletContext().setAttribute(ShopServices.KEY,new ShopServices(db,config.uploadRoot(),config.vnpay())));
+            database.ifPresent(db -> event.getServletContext().setAttribute(ShopServices.KEY,new ShopServices(db,config.uploadRoot(),config.vnpay(),config.verificationConfig())));
             if (database.isEmpty()) event.getServletContext().log(
                     "[DATABASE_NOT_CONFIGURED] Tomcat chưa có cấu hình DB. Đặt APP_CONFIG_FILE hoặc -Dc2c.config "
                     + "trong Run Configuration; biến của terminal Maven không tự truyền sang IntelliJ/Tomcat.");

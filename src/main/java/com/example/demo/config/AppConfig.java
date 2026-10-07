@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEnabled, Path uploadRoot, Optional<VnpayConfig> vnpay) {
+public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEnabled, Path uploadRoot, Optional<VnpayConfig> vnpay,VerificationConfig verificationConfig) {
     public static AppConfig load() throws IOException {
         return load(System.getProperty("c2c.config"), System.getenv());
     }
@@ -53,7 +53,7 @@ public record AppConfig(Optional<DatabaseConfig> database, boolean diagnosticsEn
         String storage = value(properties, environment, "UPLOAD_ROOT", "upload.root", "");
         Path uploadRoot = storage.isBlank() ? Path.of(System.getProperty("user.home"), ".c2c-demo", "uploads") : Path.of(storage);
         if (!uploadRoot.isAbsolute()) throw new ConfigurationException("UPLOAD_ROOT / upload.root phải là đường dẫn tuyệt đối ngoài WAR.");
-        return new AppConfig(database, Boolean.parseBoolean(flag), uploadRoot.normalize(), VnpayConfig.from(properties,environment));
+        return new AppConfig(database, Boolean.parseBoolean(flag), uploadRoot.normalize(), VnpayConfig.from(properties,environment),VerificationConfig.from(properties,environment,uploadRoot.normalize()));
     }
     private static String value(Properties properties, Map<String, String> environment, String env, String key, String fallback) {
         return environment.containsKey(env) ? environment.get(env) : properties.getProperty(key, fallback);

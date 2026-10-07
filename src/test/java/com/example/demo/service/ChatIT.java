@@ -22,7 +22,7 @@ class ChatIT {
         chat=new ChatService(db);products=new ProductService(db,new ImageStorage(app.uploadRoot()));
     }
     @AfterAll static void close(){if(db!=null)db.close();JdbcLifecycle.shutdown();}
-    static long product(){long id=products.save(seller,null,new ProductForm("Chat fixture "+UUID.randomUUID(),510001,"Trao đổi trước khi mua",new BigDecimal("150000"),"USED",3,"PUBLIC",seller.id(),0,0,""),List.of(),false);products.action(admin,id,"APPROVE",1,"Duyệt fixture",true);return id;}
+    static long product(){SellerTestProfiles.approve(db,seller);long id=products.save(seller,null,new ProductForm("Chat fixture "+UUID.randomUUID(),510001,"Trao đổi trước khi mua",new BigDecimal("150000"),"USED",3,"PUBLIC",seller.id(),0,0,""),List.of(),false);products.action(admin,id,"APPROVE",1,"Duyệt fixture",true);return id;}
     static String nonce(){return UUID.randomUUID().toString();}
     @Test void twoPeopleExchangePersistedMessagesAndReadCursorDoesNotConsumeFutureMessages(){
         long p=product(),c=chat.start(buyer,p);assertEquals(c,chat.start(buyer,p));

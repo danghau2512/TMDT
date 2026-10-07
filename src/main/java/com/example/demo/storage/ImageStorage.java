@@ -48,4 +48,10 @@ public final class ImageStorage {
     }
     /** Chỉ dọn file vừa tạo bởi request thất bại, không dọn asset đã commit. */
     public void discard(List<StoredImage> images) { for(var image:images) try { Files.deleteIfExists(root.resolve(image.key())); } catch(IOException ignored) { } }
+    /** Dùng cho giấy tờ riêng tư theo yêu cầu xóa; thất bại phải báo, không tuyên bố đã xóa. */
+    public void deletePrivate(String key) {
+        if(!key.matches("[0-9a-f-]{36}\\.(png|jpg)"))throw new ShopException(503,"Không xóa được giấy tờ. Hãy kiểm tra quyền thư mục riêng tư.");
+        try {Files.deleteIfExists(root.resolve(key));}
+        catch(IOException e){throw new ShopException(503,"Chưa xóa được toàn bộ giấy tờ. Hãy kiểm tra quyền thư mục riêng tư và thử lại.");}
+    }
 }

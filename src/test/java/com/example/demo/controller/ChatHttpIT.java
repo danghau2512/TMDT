@@ -21,7 +21,7 @@ class ChatHttpIT {
     @AfterAll static void close(){if(db!=null)db.close();JdbcLifecycle.shutdown();}
     @Test void twoAccountsExchangeOverHttpWithCsrfPrivacyAndPersistentHistory() throws Exception {
         var owner=new CurrentUser(500002,"Seller","USER");var adminActor=new CurrentUser(500001,"Admin","ADMIN");
-        long p=shop.products().save(owner,null,new ProductForm("Chat HTTP "+UUID.randomUUID(),510001,"Fixture riêng cho chat",new BigDecimal("150000"),"USED",1,"PUBLIC",owner.id(),0,0,""),List.of(),false);
+        com.example.demo.service.SellerTestProfiles.approve(db,owner);long p=shop.products().save(owner,null,new ProductForm("Chat HTTP "+UUID.randomUUID(),510001,"Fixture riêng cho chat",new BigDecimal("150000"),"USED",1,"PUBLIC",owner.id(),0,0,""),List.of(),false);
         shop.products().action(adminActor,p,"APPROVE",1,"Duyệt fixture",true);
         var buyer=new ShopHttpIT.Browser();buyer.login("buyer1");var seller=new ShopHttpIT.Browser();seller.login("seller1");var outsider=new ShopHttpIT.Browser();outsider.login("buyer2");var admin=new ShopHttpIT.Browser();admin.login("admin");
         var start=buyer.post("/messages/start",Map.of("csrfToken",buyer.token("/products/detail?id="+p),"productId",""+p));assertEquals(303,start.statusCode());
